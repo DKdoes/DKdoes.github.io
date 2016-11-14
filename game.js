@@ -3,7 +3,7 @@ window.onload = function(){
 scene = new THREE.Scene()
 
 renderer = new THREE.WebGLRenderer({alpha:true})
-renderer.setClearColor(0xffffff,1)
+renderer.setClearColor(0xffffff,0)
 renderer.shadowMap.type = 0
 renderer.shadowMap.endabled = true
 
@@ -19,7 +19,7 @@ camera.position.z = 20
 
 window.addEventListener('resize',function(){
   renderer.setSize(window.innerWidth, window.innerHeight)
-  camera.aspect = window.innerWidth / window.innerHeight
+  //camera.aspect = window.innerWidth / window.innerHeight
 })
 window.dispatchEvent(new Event('resize'))
 
@@ -37,7 +37,8 @@ scene.add(cube)
 
 
 planeGeo = new THREE.PlaneBufferGeometry(10,10)
-plane = new THREE.Mesh(planeGeo)
+planeMat = new THREE.MeshLambertMaterial({color:0xdddddd})
+plane = new THREE.Mesh(planeGeo,planeMat)
 plane.receiveShadow = true
 plane.position.z = -1
 scene.add(plane)
