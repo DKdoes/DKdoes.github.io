@@ -5,7 +5,7 @@ scene = new THREE.Scene()
 renderer = new THREE.WebGLRenderer({alpha:true})
 renderer.setClearColor(0xffffff,0)
 renderer.shadowMap.type = 0
-renderer.shadowMap.endabled = true
+renderer.shadowMap.enabled = true
 
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.domElement.style.position = "absolute"
@@ -37,7 +37,7 @@ scene.add(cube)
 
 
 planeGeo = new THREE.PlaneBufferGeometry(10,10)
-planeMat = new THREE.MeshLambertMaterial({color:0xdddddd})
+planeMat = new THREE.MeshLambertMaterial({color:0xffdddd})
 plane = new THREE.Mesh(planeGeo,planeMat)
 plane.receiveShadow = true
 plane.position.z = -1
@@ -45,7 +45,7 @@ scene.add(plane)
 
 
 sunlight = new THREE.DirectionalLight(0xffffff, 1.35)
-sunlight.position.set(0,1,0)
+sunlight.position.set(0,0,1)
 sunlight.castShadow = true
 scene.add(sunlight)
 
