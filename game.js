@@ -29,9 +29,9 @@ cubeMat = new THREE.MeshLambertMaterial({color:0xabcdef})
 cube = new THREE.Mesh(cubeGeo, cubeMat)
 cube.castShadow = true
 cube.update = function(){
-  this.rotation.x = new Date()-0 * Math.PI / 5000
-  this.rotation.y = new Date()-0 * Math.PI / 5000
-  this.rotation.z = new Date()-0 * Math.PI / 5000
+  this.rotation.x = new Date() * Math.PI / 5000
+  this.rotation.y = new Date() * Math.PI / 5000
+  this.rotation.z = new Date() * Math.PI / 5000
 }
 scene.add(cube)
 
