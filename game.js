@@ -33,7 +33,7 @@ cube.update = function(){
   this.rotation.y = new Date()-0 * Math.PI / 5000
   this.rotation.z = new Date()-0 * Math.PI / 5000
 }
-scene.add(player)
+scene.add(cube)
 
 
 planeGeo = new THREE.PlaneBufferGeometry(10,10)
