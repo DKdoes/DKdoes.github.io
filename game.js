@@ -19,7 +19,8 @@ camera.position.z = 20
 
 window.addEventListener('resize',function(){
   renderer.setSize(window.innerWidth, window.innerHeight)
-  //camera.aspect = window.innerWidth / window.innerHeight
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
 })
 window.dispatchEvent(new Event('resize'))
 
@@ -44,8 +45,8 @@ plane.position.z = -1
 scene.add(plane)
 
 
-sunlight = new THREE.DirectionalLight(0xffffff, 1.35)
-sunlight.position.set(0,0,1)
+sunlight = new THREE.DirectionalLight(0xffffff, 1)
+sunlight.position.set(-0.2,0.2,1)
 sunlight.castShadow = true
 scene.add(sunlight)
 
