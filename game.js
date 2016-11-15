@@ -35,7 +35,6 @@ window.onload = function(){
     })
     window.dispatchEvent(new Event('resize'))
 
-
     cubeGeo = new THREE.BoxGeometry(1,1,1)
     cubeMat = new THREE.MeshLambertMaterial({color:0xabcdef})
     cube = new THREE.Mesh(cubeGeo, cubeMat)
@@ -63,11 +62,20 @@ window.onload = function(){
 
     ambientLight = new THREE.AmbientLight(0xffffff, 0.1)
     scene.add(ambientLight)
+    
+    animate = true
+    window.addEventListener('blur',function(){animate = false})
+    window.addEventListener('focus',function(){
+        animate = true
+        clock.getDelta()
+        render()
+    })
+    
     render()
 }
 
 render = function(){
-    requestAnimationFrame(render)
+    animate && requestAnimationFrame(render)
     TWEEN.update()
     delta = clock.getDelta()
     scene.children.map(
