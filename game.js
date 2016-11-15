@@ -41,6 +41,7 @@ window.onload = function(){
     
     resize = function(){
         renderer.setSize(window.innerWidth, window.innerHeight)
+        window.scrollTo(0,0)
         camera.aspect = window.innerWidth / window.innerHeight
         camera.updateProjectionMatrix()
     }
