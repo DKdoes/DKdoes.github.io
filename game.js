@@ -12,7 +12,6 @@ window.onload = function(){
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.domElement.style.position = "absolute"
     renderer.domElement.style.zIndex = 100
-
     document.body.appendChild(renderer.domElement)
 
     camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000)
@@ -24,16 +23,29 @@ window.onload = function(){
         camera.rotation.y -= (camera.rotation.y - camera.realRotation.y) * delta * 2
     }
     window.addEventListener('mousemove',function(e){
+        e.preventDefault()
         camera.realRotation.x = (e.clientY / window.innerHeight * 2 - 1) * -0.26
         camera.realRotation.y = (e.clientX / window.innerWidth * 2 - 1) * -0.26
     })
-
-    window.addEventListener('resize',function(){
+    
+    window.addEventListener('touchstart',function(e){
+        e.preventDefault()
+        camera.realRotation.x = (e.touches[0].clientY / window.innerHeight * 2 - 1) * -0.26
+        camera.realRotation.y = (e.touches[0].clientX / window.innerWidth * 2 - 1) * -0.26
+    })
+    window.addEventListener('touchmove',function(e){
+        e.preventDefault()
+        camera.realRotation.x = (e.touches[0].clientY / window.innerHeight * 2 - 1) * -0.26
+        camera.realRotation.y = (e.touches[0].clientX / window.innerWidth * 2 - 1) * -0.26
+    })
+    
+    resize = function(){
         renderer.setSize(window.innerWidth, window.innerHeight)
         camera.aspect = window.innerWidth / window.innerHeight
         camera.updateProjectionMatrix()
-    })
-    window.dispatchEvent(new Event('resize'))
+    }
+    window.addEventListener('resize',resize)
+    resize()
 
     cubeGeo = new THREE.BoxGeometry(1,1,1)
     cubeMat = new THREE.MeshLambertMaterial({color:0xabcdef})
