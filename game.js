@@ -17,12 +17,12 @@ window.onload = function(){
 	}
 
 	if ( webglAvailable() ) {
-		renderer = new THREE.WebGLRenderer();
+		renderer = new THREE.WebGLRenderer({alpha:true});
 	} else {
-		renderer = new THREE.CanvasRenderer();
+		renderer = new THREE.CanvasRenderer({alpha:true});
 	}
     
-    renderer = new THREE.WebGLRenderer({alpha:true})
+    //renderer = new THREE.WebGLRenderer({alpha:true})
     renderer.setClearColor(0xffffff,0)
     renderer.shadowMap.type = THREE.BasicShadowMap
     renderer.shadowMap.enabled = true
