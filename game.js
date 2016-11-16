@@ -4,9 +4,27 @@ window.onload = function(){
     clock = new THREE.Clock()
     delta = clock.getDelta()
     
+    function webglAvailable() {
+		try {
+			var canvas = document.createElement( 'canvas' );
+			return !!( window.WebGLRenderingContext && (
+				canvas.getContext( 'webgl' ) ||
+				canvas.getContext( 'experimental-webgl' ) )
+			);
+		} catch ( e ) {
+			return false;
+		}
+	}
+
+	if ( webglAvailable() ) {
+		renderer = new THREE.WebGLRenderer();
+	} else {
+		renderer = new THREE.CanvasRenderer();
+	}
+    
     renderer = new THREE.WebGLRenderer({alpha:true})
     renderer.setClearColor(0xffffff,0)
-    renderer.shadowMap.type = 0
+    renderer.shadowMap.type = THREE.BasicShadowMap
     renderer.shadowMap.enabled = true
 
     renderer.setSize(window.innerWidth, window.innerHeight)
@@ -19,6 +37,8 @@ window.onload = function(){
     camera.position.z = 20
     camera.realRotation = {x:0,y:0,z:0}
     camera.update = function(){
+        //camera.rotation.x = camera.realRotation.x
+        //camera.rotation.y = camera.realRotation.y
         camera.rotation.x -= (camera.rotation.x - camera.realRotation.x) * delta * 2
         camera.rotation.y -= (camera.rotation.y - camera.realRotation.y) * delta * 2
     }
@@ -64,7 +84,7 @@ window.onload = function(){
     planeMat = new THREE.MeshLambertMaterial({color:0xffdddd})
     plane = new THREE.Mesh(planeGeo,planeMat)
     plane.receiveShadow = true
-    plane.position.z = -1
+    plane.position.z = -2
     scene.add(plane)
 
 
