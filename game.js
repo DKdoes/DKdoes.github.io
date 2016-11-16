@@ -4,25 +4,7 @@ window.onload = function(){
     clock = new THREE.Clock()
     delta = clock.getDelta()
     
-    function webglAvailable() {
-		try {
-			var canvas = document.createElement( 'canvas' );
-			return !!( window.WebGLRenderingContext && (
-				canvas.getContext( 'webgl' ) ||
-				canvas.getContext( 'experimental-webgl' ) )
-			);
-		} catch ( e ) {
-			return false;
-		}
-	}
-
-	if ( webglAvailable() ) {
-		renderer = new THREE.WebGLRenderer({alpha:true});
-	} else {
-		renderer = new THREE.CanvasRenderer({alpha:true});
-	}
-    
-    //renderer = new THREE.WebGLRenderer({alpha:true})
+    renderer = new THREE.WebGLRenderer({alpha:true})
     renderer.setClearColor(0xffffff,0)
     renderer.shadowMap.type = THREE.BasicShadowMap
     renderer.shadowMap.enabled = true
