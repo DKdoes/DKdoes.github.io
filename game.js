@@ -122,23 +122,27 @@ window.onload = function(){
     player = new CUBE(1,4)
     player.mesh.material.color.set(14069242)
     player.body.allowSleep = false
-    player.moveX = 0
-    player.moveZ = 0
+    player.left = 0
+    player.right = 0
+    player.up = 0
+    player.down = 0
     player.jumping = 1
     player.jumpVelocity = 30
     player.speed = 5
     player.mSpeed = 10
     player.jSpeed = 8
     player.update = function(){
-        if (player.moveX != 0 && player.moveZ != 0){
-            player.body.velocity.x = player.moveX * player.speed * 0.707
-            player.body.velocity.z = player.moveZ * player.speed * 0.707
+        if (player.right == 1){
+            player.body.velocity.x = player.speed * (player.up==1||player.down==1?0.707:1)
         }
-        else if (player.moveX != 0){
-            player.body.velocity.x = player.moveX * player.speed
+        if (player.left == 1){
+            player.body.velocity.x = -player.speed * (player.up==1||player.down==1?0.707:1)
         }
-        else if (player.moveZ != 0){
-            player.body.velocity.z = player.moveZ * player.speed
+        if (player.up == 1){
+            player.body.velocity.z = -player.speed * (player.left==1||player.right==1?0.707:1)
+        }
+        if (player.down == 1){
+            player.body.velocity.z = player.speed * (player.left==1||player.right==1?0.707:1)
         }
         if (player.jumping > 1){
             player.jumping--
@@ -156,14 +160,10 @@ window.onload = function(){
         this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
         this.mesh.position.copy(this.body.position)
     }
-    //$(document).keydown(function(e){
-    $(document).keypress(function(e){
+    $(document).keydown(function(e){
         e.preventDefault()
         e = e.which || e.keyCode
         switch(e){
-            case 48:
-                debug = !debug
-                break
             case 49:
                 new CUBE()
                 break
@@ -173,21 +173,21 @@ window.onload = function(){
                     .easing(TWEEN.Easing.Circular.InOut)
                     .start()
                 break
-            //case 65:
-            case 97:
-                player.moveX = -1
+            case 65:
+                player.left = 1
+                player.right == 1 && player.right++
                 break
-            //case 68:
-            case 100:
-                player.moveX = 1
+            case 68:
+                player.right = 1
+                player.left == 1 && player.left++
                 break
-            //case 87:
-            case 119:
-                player.moveZ = -1
+            case 87:
+                player.up = 1
+                player.down == 1 && player.down++
                 break
-            //case 83:
-            case 115:
-                player.moveZ = 1
+            case 83:
+                player.down = 1
+                player.up == 1 && player.up++
                 break
             case 32:
                 if (player.jumping == 0){
@@ -206,8 +206,7 @@ window.onload = function(){
                     }
                 }
                 break
-            //case 80:
-            case 112:
+            case 80:
                 location.reload()
                 break
             default:
@@ -218,16 +217,20 @@ window.onload = function(){
         e = e.which || e.keyCode
         switch(e){
             case 65:
-                player.moveX = 0
+                player.left = 0
+                player.right == 2 && player.right--
                 break
             case 68:
-                player.moveX = 0
+                player.right = 0
+                player.left == 2 && player.left--
                 break
             case 87:
-                player.moveZ = 0
+                player.up = 0
+                player.down == 2 && player.down--
                 break
             case 83:
-                player.moveZ = 0
+                player.down = 0
+                player.up == 2 && player.up--
                 break
         }
     })
