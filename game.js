@@ -5,7 +5,7 @@ window.onload = function(){
     delta = clock.getDelta()
     maxSubSteps = 1
     world = new CANNON.World()
-    world.gravity.set(0,-98,0)
+    world.gravity.set(0,-91,0)
     world.allowSleep=true
     sceneWorld = []
     
@@ -119,6 +119,7 @@ window.onload = function(){
         scene.add(this.mesh)
     }
     player = new CUBE(1,4)
+    player.mesh.material.color.set(14069242)
     player.body.allowSleep = false
     player.moveX = 0
     player.moveZ = 0
@@ -144,7 +145,7 @@ window.onload = function(){
         if (player.jumping == 1){
             for (i=0;i<world.contacts.length;i++){
                 if (world.contacts[i].bi === player.body || world.contacts[i].bj === player.body){
-                    if (world.contacts[i].ni.y > 0.9 == 1){
+                    if (Math.abs(world.contacts[i].ni.y) > 0.95){
                         player.jumping = 0
                         player.speed = player.mSpeed
                     }
@@ -188,6 +189,19 @@ window.onload = function(){
                     player.body.velocity.y = player.jumpVelocity
                     player.speed = player.jSpeed
                 }
+                else{
+                    if(player.body.velocity.x<=0){
+                        player.body.angularVelocity.z = -14.4
+                        player.body.angularVelocity.y = 14.4
+                    }
+                    else{
+                        player.body.angularVelocity.z = 14.4
+                        player.body.angularVelocity.y = -14.4
+                    }
+                }
+                break
+            case 80:
+                location.reload()
                 break
             default:
                 console.log(e)
