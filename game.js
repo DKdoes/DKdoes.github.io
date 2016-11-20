@@ -155,13 +155,20 @@ window.onload = function(){
         this.mesh.position.copy(this.body.position)
     }
     $(document).keydown(function(e){
+        e.preventDefault()
         e = e.which || e.keyCode
         switch(e){
             case 48:
                 debug = !debug
                 break
-            case 57:
+            case 49:
                 new CUBE()
+                break
+            case 50:
+                new TWEEN.Tween(player.mesh.material.color)
+                    .to({r:Math.random(),g:Math.random(),b:Math.random()},300)
+                    .easing(TWEEN.Easing.Circular.InOut)
+                    .start()
                 break
             case 65:
                 player.moveX = -1
