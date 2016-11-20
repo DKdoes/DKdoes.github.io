@@ -21,7 +21,6 @@ window.onload = function(){
     document.body.appendChild(renderer.domElement)
 
     animate = true
-    debug = false
 
     window.addEventListener('blur',function(){animate = false})
     window.addEventListener('focus',function(){
@@ -157,7 +156,8 @@ window.onload = function(){
         this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
         this.mesh.position.copy(this.body.position)
     }
-    $(document).keydown(function(e){
+    //$(document).keydown(function(e){
+    $(document).keypress(function(e){
         e.preventDefault()
         e = e.which || e.keyCode
         switch(e){
@@ -173,16 +173,20 @@ window.onload = function(){
                     .easing(TWEEN.Easing.Circular.InOut)
                     .start()
                 break
-            case 65:
+            //case 65:
+            case 97:
                 player.moveX = -1
                 break
-            case 68:
+            //case 68:
+            case 100:
                 player.moveX = 1
                 break
-            case 87:
+            //case 87:
+            case 119:
                 player.moveZ = -1
                 break
-            case 83:
+            //case 83:
+            case 115:
                 player.moveZ = 1
                 break
             case 32:
@@ -202,7 +206,8 @@ window.onload = function(){
                     }
                 }
                 break
-            case 80:
+            //case 80:
+            case 112:
                 location.reload()
                 break
             default:
