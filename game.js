@@ -5,6 +5,7 @@ window.onload = function(){
     delta = clock.getDelta()
     world = new CANNON.World()
     world.gravity.set(0,-9.8,0)
+    world.allowSleep=true
     sceneWorld = []
     
     
@@ -115,6 +116,25 @@ window.onload = function(){
         world.add(this.body)
         scene.add(this.mesh)
     }
+    player = new CUBE(1,4)
+    player.body.allowSleep = false
+    player.moveX = 0
+    player.moveZ = 0
+    player.speed = 4
+    player.update = function(){
+        if (player.moveX != 0 && player.moveZ != 0){
+            player.body.velocity.x = player.moveX * player.speed * 0.707
+            player.body.velocity.z = player.moveZ * player.speed * 0.707
+        }
+        else if (player.moveX != 0){
+            player.body.velocity.x = player.moveX * player.speed
+        }
+        else if (player.moveZ != 0){
+            player.body.velocity.z = player.moveZ * player.speed
+        }
+        this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
+        this.mesh.position.copy(this.body.position)
+    }
     $(document).keydown(function(e){
         e = e.which || e.keyCode
         switch(e){
@@ -124,11 +144,42 @@ window.onload = function(){
             case 57:
                 new CUBE()
                 break
+            case 65:
+                player.moveX = -1
+                break
+            case 68:
+                player.moveX = 1
+                break
+            case 87:
+                player.moveZ = -1
+                break
+            case 83:
+                player.moveZ = 1
+                break
+            case 32:
+                player.body.velocity.y = 10
+                break
             default:
                 console.log(e)
         }
     })
-    new CUBE()
+    $(document).keyup(function(e){
+        e = e.which || e.keyCode
+        switch(e){
+            case 65:
+                player.moveX = 0
+                break
+            case 68:
+                player.moveX = 0
+                break
+            case 87:
+                player.moveZ = 0
+                break
+            case 83:
+                player.moveZ = 0
+                break
+        }
+    })
     render()
 }
 
