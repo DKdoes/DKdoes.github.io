@@ -3,6 +3,7 @@ window.onload = function(){
     scene = new THREE.Scene()
     clock = new THREE.Clock()
     delta = clock.getDelta()
+    maxSubSteps = 1
     world = new CANNON.World()
     world.gravity.set(0,-98,0)
     world.allowSleep=true
@@ -98,11 +99,12 @@ window.onload = function(){
     CUBE = function(size, mass, position){
         size == undefined ? size = 1 : 0
         mass == undefined ? mass = 1 : 0
-        position == undefined ? position = {x:0,y:0,z:0} : 0
+        position == undefined ? position = {x:0,y:10,z:0} : 0
         this.body = new CANNON.Body({
             mass:mass,
             shape:new CANNON.Box(new CANNON.Vec3(size/2,size/2,size/2)),
-            position:position
+            position:position,
+            sleepSpeedLimit:2
         })
         this.mesh = new THREE.Mesh(
             new THREE.BoxGeometry(size,size,size),
@@ -124,7 +126,7 @@ window.onload = function(){
     player.jumpVelocity = 30
     player.speed = 5
     player.mSpeed = 10
-    player.jSpeed = 5
+    player.jSpeed = 8
     player.update = function(){
         if (player.moveX != 0 && player.moveZ != 0){
             player.body.velocity.x = player.moveX * player.speed * 0.707
@@ -142,7 +144,7 @@ window.onload = function(){
         if (player.jumping == 1){
             for (i=0;i<world.contacts.length;i++){
                 if (world.contacts[i].bi === player.body || world.contacts[i].bj === player.body){
-                    if (world.contacts[i].ni.y == 1){
+                    if (world.contacts[i].ni.y > 0.9 == 1){
                         player.jumping = 0
                         player.speed = player.mSpeed
                     }
@@ -177,7 +179,7 @@ window.onload = function(){
                 if (player.jumping == 0){
                     player.jumping = 20
                     player.body.velocity.y = player.jumpVelocity
-                    player.speed = jSpeed
+                    player.speed = player.jSpeed
                 }
                 break
             default:
@@ -208,7 +210,7 @@ render = function(){
     requestAnimationFrame(render)
     delta = clock.getDelta()
     TWEEN.update()
-    world.step(1/60, delta, 1)
+    world.step(1/60, delta, maxSubSteps)
     sceneWorld.map(
         function(o){
             if(o.update){o.update()}
