@@ -4,7 +4,7 @@ window.onload = function(){
     clock = new THREE.Clock()
     delta = clock.getDelta()
     world = new CANNON.World()
-    world.gravity.set(0,-9.8,0)
+    world.gravity.set(0,-98,0)
     world.allowSleep=true
     sceneWorld = []
     
@@ -120,7 +120,11 @@ window.onload = function(){
     player.body.allowSleep = false
     player.moveX = 0
     player.moveZ = 0
-    player.speed = 4
+    player.jumping = 1
+    player.jumpVelocity = 30
+    player.speed = 5
+    player.mSpeed = 10
+    player.jSpeed = 5
     player.update = function(){
         if (player.moveX != 0 && player.moveZ != 0){
             player.body.velocity.x = player.moveX * player.speed * 0.707
@@ -131,6 +135,19 @@ window.onload = function(){
         }
         else if (player.moveZ != 0){
             player.body.velocity.z = player.moveZ * player.speed
+        }
+        if (player.jumping > 1){
+            player.jumping--
+        }
+        if (player.jumping == 1){
+            for (i=0;i<world.contacts.length;i++){
+                if (world.contacts[i].bi === player.body || world.contacts[i].bj === player.body){
+                    if (world.contacts[i].ni.y == 1){
+                        player.jumping = 0
+                        player.speed = player.mSpeed
+                    }
+                }
+            }
         }
         this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
         this.mesh.position.copy(this.body.position)
@@ -157,7 +174,11 @@ window.onload = function(){
                 player.moveZ = 1
                 break
             case 32:
-                player.body.velocity.y = 10
+                if (player.jumping == 0){
+                    player.jumping = 20
+                    player.body.velocity.y = player.jumpVelocity
+                    player.speed = jSpeed
+                }
                 break
             default:
                 console.log(e)
