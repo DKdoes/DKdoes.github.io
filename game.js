@@ -39,6 +39,7 @@ window.onload = function(){
             camera.rotation.y -= (camera.rotation.y - camera.realRotation.y) * delta * 2
         }
     }
+    /*
     window.addEventListener('mousemove',function(e){
         e.preventDefault()
         camera.realRotation.x = (e.clientY / window.innerHeight * 2 - 1) * -0.26
@@ -55,6 +56,7 @@ window.onload = function(){
         camera.realRotation.x = (e.touches[0].clientY / window.innerHeight * 2 - 1) * -0.26
         camera.realRotation.y = (e.touches[0].clientX / window.innerWidth * 2 - 1) * -0.26
     })
+    */
     
     resize = function(){
         renderer.setSize(window.innerWidth, window.innerHeight)
@@ -122,27 +124,39 @@ window.onload = function(){
     player = new CUBE(1,4)
     player.mesh.material.color.set(14069242)
     player.body.allowSleep = false
-    player.left = 0
+    player.left = 0;
     player.right = 0
     player.up = 0
     player.down = 0
+    player.touch = {active:false,x:0,y:0,x2:0,y2:0}
     player.jumping = 1
     player.jumpVelocity = 30
-    player.speed = 5
+    player.speed = 8
     player.mSpeed = 10
     player.jSpeed = 8
     player.update = function(){
-        if (player.right == 1){
-            player.body.velocity.x = player.speed * (player.up==1||player.down==1?0.707:1)
+        if (player.touch.active){
+            //var temp = Math.PI*(player.touch.x2-player.touch.x)/(player.touch.y-player.touch.y2)
+            var t0 = player.touch.x2 - player.touch.x
+            var t1 = player.touch.y2 - player.touch.y
+            var t2 = Math.hypot(t0, t1) || 1e-15
+            console.log(t0/t2)
+            player.body.velocity.x= player.speed * (t0/t2)//Math.sin(temp)*player.speed
+            player.body.velocity.z= player.speed * (t1/t2)//Math.cos(temp)*player.speed
         }
-        if (player.left == 1){
-            player.body.velocity.x = -player.speed * (player.up==1||player.down==1?0.707:1)
-        }
-        if (player.up == 1){
-            player.body.velocity.z = -player.speed * (player.left==1||player.right==1?0.707:1)
-        }
-        if (player.down == 1){
-            player.body.velocity.z = player.speed * (player.left==1||player.right==1?0.707:1)
+        else{
+            if (player.right == 1){
+                player.body.velocity.x=player.speed*(player.up==1||player.down==1?0.707:1)
+            }
+            else if (player.left == 1){
+                player.body.velocity.x=-player.speed*(player.up==1||player.down==1?0.707:1)
+            }
+            if (player.up == 1){
+                player.body.velocity.z=-player.speed*(player.left==1||player.right==1?0.707:1)
+            }
+            else if (player.down == 1){
+                player.body.velocity.z=player.speed*(player.left==1||player.right==1?0.707:1)
+            }
         }
         if (player.jumping > 1){
             player.jumping--
@@ -232,6 +246,43 @@ window.onload = function(){
                 player.down = 0
                 player.up == 2 && player.up--
                 break
+        }
+    })
+    window.addEventListener('mousemove',function(e){
+        e.preventDefault()
+        camera.realRotation.x = (e.clientY / window.innerHeight * 2 - 1) * -0.26
+        camera.realRotation.y = (e.clientX / window.innerWidth * 2 - 1) * -0.26
+    })
+    window.addEventListener('touchstart',function(e){
+        e.preventDefault()
+        if (e.touches.length == 1){
+            player.touch.active = true
+            player.touch.x = e.touches[0].clientX
+            player.touch.y = e.touches[0].clientY
+            player.touch.x2 = e.touches[0].clientX
+            player.touch.y2 = e.touches[0].clientY
+        }
+        else if (e.touches.length == 2){
+            camera.realRotation.x = (e.touches[0].clientY / window.innerHeight * 2 - 1) * -0.26
+            camera.realRotation.y = (e.touches[0].clientX / window.innerWidth * 2 - 1) * -0.26
+        }
+        else if (e.touches.length == 3){new CUBE()}
+    })
+    window.addEventListener('touchmove',function(e){
+        e.preventDefault()
+        if (e.touches.length == 1){
+            player.touch.x2 = e.touches[0].clientX
+            player.touch.y2 = e.touches[0].clientY
+        }
+        else if (e.touches.length == 2){
+            camera.realRotation.x = (e.touches[0].clientY / window.innerHeight * 2 - 1) * -0.26
+            camera.realRotation.y = (e.touches[0].clientX / window.innerWidth * 2 - 1) * -0.26
+        }
+    })
+    window.addEventListener('touchend',function(e){
+        e.preventDefault()
+        if (e.touches.length == 0){
+            player.touch.active = false
         }
     })
     render()
