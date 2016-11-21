@@ -121,7 +121,6 @@ window.onload = function(){
             var t0 = player.touch.x2 - player.touch.x
             var t1 = player.touch.y2 - player.touch.y
             var t2 = Math.hypot(t0, t1) || 1e-15
-            console.log(t0/t2)
             player.body.velocity.x= player.speed * (t0/t2)
             player.body.velocity.z= player.speed * (t1/t2)
         }
