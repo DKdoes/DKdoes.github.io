@@ -9,6 +9,8 @@ window.onload = function(){
     world.allowSleep=true
     sceneWorld = []
     
+    var temp = /Android/i.test(navigator.userAgent)
+    temp ? accelerometerMod = -1 : accelerometerMod = 1
     
     renderer = new THREE.WebGLRenderer({alpha:true})
     renderer.setClearColor(0xffffff,0)
@@ -154,8 +156,9 @@ window.onload = function(){
         this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
         this.mesh.position.copy(this.body.position)
     }
-    $(document).keydown(function(e){
+    document.addEventListener('keydown',function(e){
         e.preventDefault()
+        e = e || window.event
         e = e.which || e.keyCode
         switch(e){
             case 49:
@@ -207,7 +210,9 @@ window.onload = function(){
                 console.log(e)
         }
     })
-    $(document).keyup(function(e){
+    document.addEventListener('keyup',function(e){
+        e.preventDefault()
+        e = e || window.event
         e = e.which || e.keyCode
         switch(e){
             case 65:
@@ -278,8 +283,8 @@ window.onload = function(){
     })
     window.addEventListener("devicemotion",function(e){
         e=e.accelerationIncludingGravity
-        camera.realRotation.x = e.z*0.03
-        camera.realRotation.y = -e.x*0.1
+        camera.realRotation.x = accelerometerMod * e.z * 0.03
+        camera.realRotation.y = accelerometerMod * -e.x * 0.1
     })
     render()
 }
