@@ -174,12 +174,6 @@ window.onload = function(){
                 break
             case 50:
                 player.changeColor()
-                /*
-                new TWEEN.Tween(player.mesh.material.color)
-                    .to({r:Math.random(),g:Math.random(),b:Math.random()},300)
-                    .easing(TWEEN.Easing.Circular.InOut)
-                    .start()
-                */
                 break
             case 65:
                 player.left = 1
@@ -247,7 +241,7 @@ window.onload = function(){
     
     renderer.domElement.addEventListener('mousemove',function(e){
         e.preventDefault()
-        camera.realRotation.x = (e.clientY / window.innerHeight * 2 - 1) * -0.26
+        camera.realRotation.x = (e.clientY / window.innerHeight * 2 - 1) * -0.13
         camera.realRotation.y = (e.clientX / window.innerWidth * 2 - 1) * -0.26
     })
     
