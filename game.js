@@ -19,7 +19,7 @@ window.onload = function(){
 
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.domElement.style.position = "absolute"
-    renderer.domElement.style.zIndex = 100
+    renderer.domElement.style.zIndex = -100
     document.body.appendChild(renderer.domElement)
 
     animate = true
@@ -105,6 +105,7 @@ window.onload = function(){
         world.add(this.body)
         scene.add(this.mesh)
     }
+    document.getElementById("makeCube").onclick = function(){new CUBE()}
     player = new CUBE(1,4)
     player.mesh.material.color.set(14069242)
     player.body.allowSleep = false
@@ -118,6 +119,13 @@ window.onload = function(){
     player.speed = 8
     player.mSpeed = 10
     player.jSpeed = 8
+    player.changeColor = function(){
+        new TWEEN.Tween(player.mesh.material.color)
+            .to({r:Math.random(),g:Math.random(),b:Math.random()},300)
+            .easing(TWEEN.Easing.Circular.InOut)
+            .start()
+    }
+    document.getElementById("changeColor").onclick = function(){player.changeColor()}
     player.update = function(){
         if (player.touch.active){
             var t0 = player.touch.x2 - player.touch.x
@@ -165,10 +173,13 @@ window.onload = function(){
                 new CUBE()
                 break
             case 50:
+                player.changeColor()
+                /*
                 new TWEEN.Tween(player.mesh.material.color)
                     .to({r:Math.random(),g:Math.random(),b:Math.random()},300)
                     .easing(TWEEN.Easing.Circular.InOut)
                     .start()
+                */
                 break
             case 65:
                 player.left = 1
@@ -233,12 +244,14 @@ window.onload = function(){
                 break
         }
     })
-    window.addEventListener('mousemove',function(e){
+    
+    renderer.domElement.addEventListener('mousemove',function(e){
         e.preventDefault()
         camera.realRotation.x = (e.clientY / window.innerHeight * 2 - 1) * -0.26
         camera.realRotation.y = (e.clientX / window.innerWidth * 2 - 1) * -0.26
     })
-    window.addEventListener('touchstart',function(e){
+    
+    renderer.domElement.addEventListener('touchstart',function(e){
         e.preventDefault()
         if (e.touches.length == 1){
             player.touch.active = true
@@ -264,9 +277,9 @@ window.onload = function(){
                 }
             }
         }
-        else if (e.touches.length == 3){new CUBE()}
+        //else if (e.touches.length == 3){new CUBE()}
     })
-    window.addEventListener('touchmove',function(e){
+    renderer.domElement.addEventListener('touchmove',function(e){
         e.preventDefault()
         if (e.touches.length == 1){
             player.touch.x2 = e.touches[0].clientX
@@ -275,7 +288,7 @@ window.onload = function(){
         else if (e.touches.length == 2){
         }
     })
-    window.addEventListener('touchend',function(e){
+    renderer.domElement.addEventListener('touchend',function(e){
         e.preventDefault()
         if (e.touches.length == 0){
             player.touch.active = false
