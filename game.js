@@ -29,6 +29,7 @@ window.onload = function(){
     window.addEventListener('focus',function(){
         animate = true
         clock.getDelta()
+        clock.getDelta()
         render()
     })
     
@@ -42,6 +43,11 @@ window.onload = function(){
             camera.rotation.y -= (camera.rotation.y - camera.realRotation.y) * delta * 2
             camera.rotation.z -= (camera.rotation.z - camera.realRotation.z) * delta * 2
         }
+        Howler.pos(camera.position.x,camera.position.y,camera.position.z)
+        Howler.orientation(
+            camera.matrix.elements[8]*-1,
+            camera.matrix.elements[9]*-1,
+            camera.matrix.elements[10]*-1)
     }
     resize = function(e){
         e.preventDefault()
@@ -55,20 +61,11 @@ window.onload = function(){
     window.addEventListener('resize',resize)
     window.dispatchEvent(new Event('resize'))
     
-    listener = new THREE.AudioListener()
-    camera.add(listener)
-    audioLoader = new THREE.AudioLoader()
-    
-    jumpSound = new THREE.PositionalAudio(listener)
-    audioLoader.load('jump.wav', function(buffer){
-        jumpSound.setBuffer(buffer)
-        jumpSound.setRefDistance(20)
+    jumpSound = new Howl({
+        src: ['jump.wav']
     })
-    
-    spinSound = new THREE.PositionalAudio(listener)
-    audioLoader.load('spin.wav', function(buffer){
-        spinSound.setBuffer(buffer)
-        spinSound.setRefDistance(20)
+    spinSound = new Howl({
+        src: ['spin.wav']
     })
     
     
@@ -128,8 +125,8 @@ window.onload = function(){
     document.getElementById("makeCube").onclick = function(){new CUBE()}
     player = new CUBE(1,4)
     player.mesh.material.color.set(14069242)
-    player.mesh.add(jumpSound)
-    player.mesh.add(spinSound)
+    
+    
     player.body.allowSleep = false
     player.left = 0;
     player.right = 0
@@ -153,7 +150,6 @@ window.onload = function(){
             player.body.velocity.y = player.jumpVelocity
             player.speed = player.jSpeed
             jumpSound.play()
-            
         }
         else{
             if(player.body.velocity.x<=0){
@@ -205,6 +201,14 @@ window.onload = function(){
         }
         this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
         this.mesh.position.copy(this.body.position)
+        jumpSound.pos(
+            this.mesh.position.x,
+            this.mesh.position.y,
+            this.mesh.position.z)
+        spinSound.pos(
+            this.mesh.position.x,
+            this.mesh.position.y,
+            this.mesh.position.z)
     }
     document.addEventListener('keydown',function(e){
         e.preventDefault()
@@ -275,7 +279,6 @@ window.onload = function(){
     $(function(){FastClick.attach(document.body)})
     
     renderer.domElement.addEventListener('touchstart',function(e){
-        //e.preventDefault()
         if (e.touches.length == 1){
             player.touch.active = true
             player.touch.x = e.touches[0].clientX
@@ -297,14 +300,10 @@ window.onload = function(){
             player.touch.x2 = e.touches[0].clientX
             player.touch.y2 = e.touches[0].clientY
         }
-        else if (e.touches.length == 2){
-            //player.jump()
-        }
         */
         
     })
     window.addEventListener('touchend',function(e){
-        //e.preventDefault()
         if (e.touches.length == 0){
             player.touch.active = false
         }
@@ -330,6 +329,8 @@ window.onload = function(){
 window.addEventListener('scroll',function(){
     scrollTo(0,0)
 })
+
+
 
 render = function(){
     requestAnimationFrame(render)
