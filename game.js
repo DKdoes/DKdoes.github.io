@@ -16,6 +16,7 @@ window.onload = function(){
     renderer.setClearColor(0xffffff,0)
     renderer.shadowMap.type = THREE.BasicShadowMap
     renderer.shadowMap.enabled = true
+    
 
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.domElement.style.position = "absolute"
@@ -42,7 +43,8 @@ window.onload = function(){
             camera.rotation.z -= (camera.rotation.z - camera.realRotation.z) * delta * 2
         }
     }
-    resize = function(){
+    resize = function(e){
+        e.preventDefault()
         renderer.setSize(window.innerWidth, window.innerHeight)
         renderer.domElement.style.left = 0
         renderer.domElement.style.top = 0
@@ -51,7 +53,25 @@ window.onload = function(){
         camera.updateProjectionMatrix()
     }
     window.addEventListener('resize',resize)
-    resize()
+    window.dispatchEvent(new Event('resize'))
+    
+    listener = new THREE.AudioListener()
+    camera.add(listener)
+    audioLoader = new THREE.AudioLoader()
+    
+    jumpSound = new THREE.PositionalAudio(listener)
+    audioLoader.load('jump.wav', function(buffer){
+        jumpSound.setBuffer(buffer)
+        jumpSound.setRefDistance(20)
+    })
+    
+    spinSound = new THREE.PositionalAudio(listener)
+    audioLoader.load('spin.wav', function(buffer){
+        spinSound.setBuffer(buffer)
+        spinSound.setRefDistance(20)
+    })
+    
+    
 
     ground = {
         mesh:new THREE.Mesh(
@@ -108,6 +128,8 @@ window.onload = function(){
     document.getElementById("makeCube").onclick = function(){new CUBE()}
     player = new CUBE(1,4)
     player.mesh.material.color.set(14069242)
+    player.mesh.add(jumpSound)
+    player.mesh.add(spinSound)
     player.body.allowSleep = false
     player.left = 0;
     player.right = 0
@@ -124,6 +146,26 @@ window.onload = function(){
             .to({r:Math.random(),g:Math.random(),b:Math.random()},300)
             .easing(TWEEN.Easing.Circular.InOut)
             .start()
+    }
+    player.jump = function(){
+        if (player.jumping == 0){
+            player.jumping = 20
+            player.body.velocity.y = player.jumpVelocity
+            player.speed = player.jSpeed
+            jumpSound.play()
+            
+        }
+        else{
+            if(player.body.velocity.x<=0){
+                player.body.angularVelocity.z = -14.4
+                player.body.angularVelocity.y = 14.4
+            }
+            else{
+                player.body.angularVelocity.z = 14.4
+                player.body.angularVelocity.y = -14.4
+            }
+            spinSound.play()
+        }
     }
     document.getElementById("changeColor").onclick = function(){player.changeColor()}
     player.update = function(){
@@ -192,21 +234,7 @@ window.onload = function(){
                 player.up == 1 && player.up++
                 break
             case 32:
-                if (player.jumping == 0){
-                    player.jumping = 20
-                    player.body.velocity.y = player.jumpVelocity
-                    player.speed = player.jSpeed
-                }
-                else{
-                    if(player.body.velocity.x<=0){
-                        player.body.angularVelocity.z = -14.4
-                        player.body.angularVelocity.y = 14.4
-                    }
-                    else{
-                        player.body.angularVelocity.z = 14.4
-                        player.body.angularVelocity.y = -14.4
-                    }
-                }
+                player.jump()
                 break
             case 80:
                 location.reload()
@@ -244,9 +272,10 @@ window.onload = function(){
         camera.realRotation.x = (e.clientY / window.innerHeight * 2 - 1) * -0.13
         camera.realRotation.y = (e.clientX / window.innerWidth * 2 - 1) * -0.26
     })
+    $(function(){FastClick.attach(document.body)})
     
     renderer.domElement.addEventListener('touchstart',function(e){
-        e.preventDefault()
+        //e.preventDefault()
         if (e.touches.length == 1){
             player.touch.active = true
             player.touch.x = e.touches[0].clientX
@@ -255,35 +284,27 @@ window.onload = function(){
             player.touch.y2 = e.touches[0].clientY
         }
         else if (e.touches.length == 2){
-            if (player.jumping == 0){
-                player.jumping = 20
-                player.body.velocity.y = player.jumpVelocity
-                player.speed = player.jSpeed
-            }
-            else{
-                if(player.body.velocity.x<=0){
-                    player.body.angularVelocity.z = -14.4
-                    player.body.angularVelocity.y = 14.4
-                }
-                else{
-                    player.body.angularVelocity.z = 14.4
-                    player.body.angularVelocity.y = -14.4
-                }
-            }
+            player.jump()
         }
-        //else if (e.touches.length == 3){new CUBE()}
+        
     })
-    renderer.domElement.addEventListener('touchmove',function(e){
+    window.addEventListener('touchmove',function(e){
         e.preventDefault()
+        player.touch.x2 = e.touches[0].clientX
+        player.touch.y2 = e.touches[0].clientY
+        /*
         if (e.touches.length == 1){
             player.touch.x2 = e.touches[0].clientX
             player.touch.y2 = e.touches[0].clientY
         }
         else if (e.touches.length == 2){
+            //player.jump()
         }
+        */
+        
     })
-    renderer.domElement.addEventListener('touchend',function(e){
-        e.preventDefault()
+    window.addEventListener('touchend',function(e){
+        //e.preventDefault()
         if (e.touches.length == 0){
             player.touch.active = false
         }
@@ -305,6 +326,10 @@ window.onload = function(){
     })
     render()
 }
+
+window.addEventListener('scroll',function(){
+    scrollTo(0,0)
+})
 
 render = function(){
     requestAnimationFrame(render)
