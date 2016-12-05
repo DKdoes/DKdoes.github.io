@@ -66,6 +66,9 @@ window.onload = function(){
     jumpSound = new Howl({
         src: ['jump.wav']
     })
+    bumpSound = new Howl({
+        src: ['bump.wav']
+    })
     spinSound = new Howl({
         src: ['spin.wav']
     })
@@ -151,6 +154,10 @@ window.onload = function(){
             player.jumping = 20
             player.body.velocity.y = player.jumpVelocity
             player.speed = player.jSpeed
+            jumpSound.pos(
+                player.mesh.position.x,
+                player.mesh.position.y,
+                player.mesh.position.z)
             jumpSound.play()
         }
         else{
@@ -162,6 +169,10 @@ window.onload = function(){
                 player.body.angularVelocity.z = 14.4
                 player.body.angularVelocity.y = -14.4
             }
+            spinSound.pos(
+                player.mesh.position.x,
+                player.mesh.position.y,
+                player.mesh.position.z)
             spinSound.play()
         }
     }
@@ -203,14 +214,6 @@ window.onload = function(){
         }
         this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
         this.mesh.position.copy(this.body.position)
-        jumpSound.pos(
-            this.mesh.position.x,
-            this.mesh.position.y,
-            this.mesh.position.z)
-        spinSound.pos(
-            this.mesh.position.x,
-            this.mesh.position.y,
-            this.mesh.position.z)
     }
     document.addEventListener('keydown',function(e){
         e.preventDefault()
@@ -336,7 +339,12 @@ bumper = {
             }
             if(Object.keys(this.bumps).indexOf(temp)<0 || this.bumps[temp]<0.2){
                 this.bumps[temp]=0.262
-                spinSound.play()
+                bumpSound.pos(
+                    world.contacts[i].bj.position.x,
+                    world.contacts[i].bj.position.y,
+                    world.contacts[i].bj.position.z)
+                var tempSound = bumpSound.play()
+                bumpSound.rate(Math.random()*2+2,tempSound)
             }
         }
         for(i=0;i<Object.keys(this.bumps).length;i++){
