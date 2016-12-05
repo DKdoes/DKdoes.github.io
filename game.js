@@ -11,6 +11,7 @@ window.onload = function(){
     
     var temp = /Android/i.test(navigator.userAgent)
     temp ? accelerometerMod = -1 : accelerometerMod = 1
+
     
     renderer = new THREE.WebGLRenderer({alpha:true})
     renderer.setClearColor(0xffffff,0)
@@ -291,7 +292,7 @@ window.onload = function(){
         }
         
     })
-    window.addEventListener('touchmove',function(e){
+    renderer.domElement.addEventListener('touchmove',function(e){
         e.preventDefault()
         player.touch.x2 = e.touches[0].clientX
         player.touch.y2 = e.touches[0].clientY
@@ -307,6 +308,7 @@ window.onload = function(){
         if (e.touches.length == 0){
             player.touch.active = false
         }
+        scrollTo(0,0)
     })
     window.addEventListener("devicemotion",function(e){
         e=e.accelerationIncludingGravity
@@ -326,17 +328,34 @@ window.onload = function(){
     render()
 }
 
-window.addEventListener('scroll',function(){
-    scrollTo(0,0)
-})
+window.addEventListener('scroll',function(){setTimeout(function(){scrollTo(0,0)},5000)})
 
 
+pause = false
+
+bumper = {
+    bumps:[],
+    handleBumps:function(){
+        var tempBumps = []
+        for (i=0;i<world.contacts.length;i++){
+            var temp = world.contacts[i].bi.id.toString()+','+world.contacts[i].bj.id.toString()
+            if(tempBumps.indexOf(temp)<0){tempBumps.push(temp)}
+            if(this.bumps.indexOf(temp)>=0){}else{this.bumps.push(temp);spinSound.play()}
+        }
+        for(i=0;i<this.bumps.length;i++){
+            if(tempBumps.indexOf(this.bumps[i])<0){
+                this.bumps.splice(i,1)
+            }
+        }
+    }
+}
 
 render = function(){
-    requestAnimationFrame(render)
+    !pause && requestAnimationFrame(render)
     delta = clock.getDelta()
     TWEEN.update()
     world.step(1/60, delta, maxSubSteps)
+    bumper.handleBumps()
     sceneWorld.map(
         function(o){
             if(o.update){o.update()}
