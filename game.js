@@ -24,6 +24,7 @@ window.onload = function(){
     renderer.domElement.style.zIndex = -100
     document.body.appendChild(renderer.domElement)
 
+    pause = false
     animate = true
 
     window.addEventListener('blur',function(){animate = false})
@@ -296,13 +297,6 @@ window.onload = function(){
         e.preventDefault()
         player.touch.x2 = e.touches[0].clientX
         player.touch.y2 = e.touches[0].clientY
-        /*
-        if (e.touches.length == 1){
-            player.touch.x2 = e.touches[0].clientX
-            player.touch.y2 = e.touches[0].clientY
-        }
-        */
-        
     })
     window.addEventListener('touchend',function(e){
         if (e.touches.length == 0){
@@ -331,20 +325,26 @@ window.onload = function(){
 window.addEventListener('scroll',function(){setTimeout(function(){scrollTo(0,0)},5000)})
 
 
-pause = false
-
 bumper = {
-    bumps:[],
+    bumps:{},
     handleBumps:function(){
-        var tempBumps = []
+        var currentBumps = []
         for (i=0;i<world.contacts.length;i++){
             var temp = world.contacts[i].bi.id.toString()+','+world.contacts[i].bj.id.toString()
-            if(tempBumps.indexOf(temp)<0){tempBumps.push(temp)}
-            if(this.bumps.indexOf(temp)>=0){}else{this.bumps.push(temp);spinSound.play()}
+            if(currentBumps.indexOf(temp)<0){
+                currentBumps.push(temp)
+            }
+            if(Object.keys(this.bumps).indexOf(temp)<0 || this.bumps[temp]<0.2){
+                this.bumps[temp]=0.262
+                spinSound.play()
+            }
         }
-        for(i=0;i<this.bumps.length;i++){
-            if(tempBumps.indexOf(this.bumps[i])<0){
-                this.bumps.splice(i,1)
+        for(i=0;i<Object.keys(this.bumps).length;i++){
+            if(currentBumps.indexOf(Object.keys(this.bumps)[i])<0){
+                this.bumps[Object.keys(this.bumps)[i]] -= delta
+                if (this.bumps[Object.keys(this.bumps)[i]]<0){
+                    delete this.bumps[Object.keys(this.bumps)[i]]
+                }
             }
         }
     }
