@@ -134,6 +134,22 @@ window.onload = function(){
         world.add(this.body)
         scene.add(this.mesh)
     }
+    COLORCHANGECUBE = function(mesh){
+        var temp = mesh.clone()
+        var temp2 = mesh.material.clone()
+        temp.material = temp2
+        temp2.transparent = true
+        new TWEEN.Tween(temp.scale)
+            .to({x:5,y:5,z:5},1000)
+            .easing(TWEEN.Easing.Circular.InOut)
+            .onComplete(function(){scene.remove(temp)})
+            .start()
+        new TWEEN.Tween(temp2)
+            .to({opacity:0},1000)
+            .easing(TWEEN.Easing.Circular.InOut)
+            .start()
+        scene.add(temp)
+    }
     document.getElementById("makeCube").onclick = function(){
         var temp = Math.random()*0.4+0.8
         new CUBE(temp,temp)
@@ -170,6 +186,7 @@ window.onload = function(){
             .to({r:Math.random(),g:Math.random(),b:Math.random()},300)
             .easing(TWEEN.Easing.Circular.InOut)
             .start()
+        new COLORCHANGECUBE(player.mesh)
     }
     player.jump = function(){
         if (player.jumping == 0){
