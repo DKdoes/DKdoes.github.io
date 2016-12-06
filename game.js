@@ -12,13 +12,8 @@ window.onload = function(){
     var temp = /Android/i.test(navigator.userAgent)
     temp ? accelerometerMod = -1 : accelerometerMod = 1
 
-    
     renderer = new THREE.WebGLRenderer({alpha:true})
     renderer.setClearColor(0xffffff,0)
-    //renderer.shadowMap.type = THREE.BasicShadowMap
-    //renderer.shadowMap.enabled = true
-    
-
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.domElement.style.position = "absolute"
     renderer.domElement.style.zIndex = -100
@@ -31,7 +26,7 @@ window.onload = function(){
     window.addEventListener('focus',function(){
         animate = true
         clock.getDelta()
-        //clock.getDelta()
+        clock.getDelta()
         render()
     })
     
@@ -72,8 +67,6 @@ window.onload = function(){
     spinSound = new Howl({
         src: ['spin.wav']
     })
-    
-    
 
     ground = {
         mesh:new THREE.Mesh(
@@ -95,10 +88,8 @@ window.onload = function(){
     scene.add(ground.mesh)
     sceneWorld.push(ground)
 
-
     sunlight = new THREE.DirectionalLight(0xffffff, 1)
     sunlight.position.set(1,2,1)
-    //sunlight.castShadow = true
     scene.add(sunlight)
 
     ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
@@ -106,8 +97,8 @@ window.onload = function(){
     
     
     CUBE = function(size, mass, position){
-        size == undefined ? size = 1 : 0
-        mass == undefined ? mass = 1 : 0
+        size == undefined && (size = 1)
+        mass == undefined && (mass = 1)
         position == undefined ? position = {x:0,y:10,z:0} : 0
         this.body = new CANNON.Body({
             mass:mass,
@@ -138,15 +129,31 @@ window.onload = function(){
             jumpSound.play()
         }
         this.mesh.parentRef = this
+        this.name = "cube"
         sceneWorld.push(this)
         world.add(this.body)
         scene.add(this.mesh)
     }
-    document.getElementById("makeCube").onclick = function(){new CUBE()}
+    document.getElementById("makeCube").onclick = function(){
+        var temp = Math.random()*0.4+0.8
+        new CUBE(temp,temp)
+    }
+    document.getElementById("refresh").onclick = function(){
+        var temp = []
+        for(i=0;i<sceneWorld.length;i++){
+            if(sceneWorld[i].name=="cube"){
+                world.remove(sceneWorld[i].body)
+                scene.remove(sceneWorld[i].mesh)
+            }
+            else{
+                temp.push(sceneWorld[i])
+            }
+        }
+        sceneWorld = temp
+    }
     player = new CUBE(1,4)
     player.mesh.material.color.set(14069242)
-    
-    
+    player.name = "player"
     player.body.allowSleep = false
     player.left = 0;
     player.right = 0
@@ -236,7 +243,8 @@ window.onload = function(){
         e = e.which || e.keyCode
         switch(e){
             case 49:
-                new CUBE()
+                var temp = Math.random()*0.5+0.5
+                new CUBE(temp,temp)
                 break
             case 50:
                 player.changeColor()
