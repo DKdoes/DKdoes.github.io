@@ -162,6 +162,25 @@ window.onload = function(){
     document.getElementById("makeCube").onclick = function(){
         var temp = Math.random()*0.4+0.8
         new CUBE(temp,temp)
+        document.getElementById("refresh").disabled = false
+        spawnSound.play()
+    }
+    document.getElementById("refresh").disabled = true
+    
+    refresh = function(){
+        var temp = []
+        for(i=0;i<sceneWorld.length;i++){
+            if(sceneWorld[i].name=="cube"){
+                world.remove(sceneWorld[i].body)
+                scene.remove(sceneWorld[i].mesh)
+            }
+            else{
+                temp.push(sceneWorld[i])
+            }
+        }
+        destroySound.play()
+        document.getElementById("refresh").disabled = true
+        sceneWorld = temp
     }
     document.getElementById("refresh").onclick = function(){
         var temp = []
@@ -174,6 +193,8 @@ window.onload = function(){
                 temp.push(sceneWorld[i])
             }
         }
+        destroySound.play()
+        document.getElementById("refresh").disabled = true
         sceneWorld = temp
     }
     player = new CUBE(1,4)
@@ -196,6 +217,8 @@ window.onload = function(){
             .easing(TWEEN.Easing.Circular.InOut)
             .start()
         new COLORCHANGECUBE(player.mesh)
+        changeSound.pos(player.mesh.position.x,player.mesh.position.y,player.mesh.position.z)
+        changeSound.play()
     }
     player.jump = function(){
         if (player.jumping == 0){
@@ -271,9 +294,14 @@ window.onload = function(){
             case 49:
                 var temp = Math.random()*0.5+0.5
                 new CUBE(temp,temp)
+                document.getElementById("refresh").disabled = false
+                spawnSound.play()
                 break
             case 50:
                 player.changeColor()
+                break
+            case 51:
+                refresh()
                 break
             case 65:
                 player.left = 1
