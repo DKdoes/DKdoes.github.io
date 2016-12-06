@@ -123,7 +123,21 @@ window.onload = function(){
             this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
             this.mesh.position.copy(this.body.position)
         }
-        this.mesh.bodyRef = this.body
+        this.bounce = function(){
+            this.body.sleepState = 0
+            this.body.velocity.y+=25+Math.random()*10
+            this.body.angularVelocity.set(
+                Math.random()*60-30,
+                Math.random()*60-30,
+                Math.random()*60-30
+            )
+            jumpSound.pos(
+                this.body.position.x,
+                this.body.position.y,
+                this.body.position.z)
+            jumpSound.play()
+        }
+        this.mesh.parentRef = this
         sceneWorld.push(this)
         world.add(this.body)
         scene.add(this.mesh)
@@ -288,23 +302,13 @@ window.onload = function(){
         camera.realRotation.y = mouse.x * -0.26
     })
     renderer.domElement.addEventListener('mousedown',function(e){
+        mouse.x = (e.clientX / window.innerWidth * 2 - 1)
+        mouse.y = - (e.clientY / window.innerHeight * 2 - 1)
         raycaster.setFromCamera(mouse, camera)
         intersects = raycaster.intersectObjects(scene.children)
         if(intersects.length>0){
             try{
-                var temp = intersects[0].object.bodyRef
-                temp.sleepState = 0
-                temp.velocity.y+=25+Math.random()*10
-                temp.angularVelocity.set(
-                    Math.random()*60-30,
-                    Math.random()*60-30,
-                    Math.random()*60-30
-                )
-                jumpSound.pos(
-                    temp.position.x,
-                    temp.position.y,
-                    temp.position.z)
-                jumpSound.play()
+                intersects[0].object.parentRef.bounce()
             }catch(err){}
         }
     })
@@ -322,7 +326,17 @@ window.onload = function(){
         else if (e.touches.length == 2){
             player.jump()
         }
-        
+        for(i=0;i<e.changedTouches.length;i++){
+            mouse.x = (e.changedTouches[i].clientX / window.innerWidth * 2 - 1)
+            mouse.y = - (e.changedTouches[i].clientY / window.innerHeight * 2 - 1)
+            raycaster.setFromCamera(mouse, camera)
+            intersects = raycaster.intersectObjects(scene.children)
+            if(intersects.length>0){
+                try{
+                    intersects[0].object.parentRef.bounce()
+                }catch(err){}
+            }
+        }
     })
     renderer.domElement.addEventListener('touchmove',function(e){
         e.preventDefault()
