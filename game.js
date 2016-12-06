@@ -125,7 +125,7 @@ window.onload = function(){
         }
         this.bounce = function(){
             this.body.sleepState = 0
-            this.body.velocity.y+=25+Math.random()*10
+            this.body.velocity.y=25+Math.random()*10
             this.body.angularVelocity.set(
                 Math.random()*60-30,
                 Math.random()*60-30,
@@ -374,6 +374,7 @@ window.onload = function(){
             }catch(err){}
         }
     })
+    
     
     $(function(){FastClick.attach(document.body)})
     
