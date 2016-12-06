@@ -15,8 +15,8 @@ window.onload = function(){
     
     renderer = new THREE.WebGLRenderer({alpha:true})
     renderer.setClearColor(0xffffff,0)
-    renderer.shadowMap.type = THREE.BasicShadowMap
-    renderer.shadowMap.enabled = true
+    //renderer.shadowMap.type = THREE.BasicShadowMap
+    //renderer.shadowMap.enabled = true
     
 
     renderer.setSize(window.innerWidth, window.innerHeight)
@@ -31,7 +31,7 @@ window.onload = function(){
     window.addEventListener('focus',function(){
         animate = true
         clock.getDelta()
-        clock.getDelta()
+        //clock.getDelta()
         render()
     })
     
@@ -98,7 +98,7 @@ window.onload = function(){
 
     sunlight = new THREE.DirectionalLight(0xffffff, 1)
     sunlight.position.set(1,2,1)
-    sunlight.castShadow = true
+    //sunlight.castShadow = true
     scene.add(sunlight)
 
     ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
@@ -123,6 +123,7 @@ window.onload = function(){
             this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
             this.mesh.position.copy(this.body.position)
         }
+        this.mesh.bodyRef = this.body
         sceneWorld.push(this)
         world.add(this.body)
         scene.add(this.mesh)
@@ -276,11 +277,38 @@ window.onload = function(){
         }
     })
     
+    raycaster = new THREE.Raycaster()
+    mouse = new THREE.Vector2()
+    
     renderer.domElement.addEventListener('mousemove',function(e){
         e.preventDefault()
-        camera.realRotation.x = (e.clientY / window.innerHeight * 2 - 1) * -0.13
-        camera.realRotation.y = (e.clientX / window.innerWidth * 2 - 1) * -0.26
+        mouse.x = (e.clientX / window.innerWidth * 2 - 1)
+        mouse.y = - (e.clientY / window.innerHeight * 2 - 1)
+        camera.realRotation.x = mouse.y * 0.13
+        camera.realRotation.y = mouse.x * -0.26
     })
+    renderer.domElement.addEventListener('mousedown',function(e){
+        raycaster.setFromCamera(mouse, camera)
+        intersects = raycaster.intersectObjects(scene.children)
+        if(intersects.length>0){
+            try{
+                var temp = intersects[0].object.bodyRef
+                temp.sleepState = 0
+                temp.velocity.y+=25+Math.random()*10
+                temp.angularVelocity.set(
+                    Math.random()*60-30,
+                    Math.random()*60-30,
+                    Math.random()*60-30
+                )
+                jumpSound.pos(
+                    temp.position.x,
+                    temp.position.y,
+                    temp.position.z)
+                jumpSound.play()
+            }catch(err){}
+        }
+    })
+    
     $(function(){FastClick.attach(document.body)})
     
     renderer.domElement.addEventListener('touchstart',function(e){
