@@ -59,13 +59,22 @@ window.onload = function(){
     window.dispatchEvent(new Event('resize'))
     
     jumpSound = new Howl({
-        src: ['jump.wav']
+        src: ['jump.mp3']
     })
     bumpSound = new Howl({
-        src: ['bump.wav']
+        src: ['bump.mp3']
     })
     spinSound = new Howl({
-        src: ['spin.wav']
+        src: ['spin.mp3']
+    })
+    destroySound = new Howl({
+        src: ['destroy.mp3']
+    })
+    changeSound = new Howl({
+        src: ['change.mp3']
+    })
+    spawnSound = new Howl({
+        src: ['spawn.mp3']
     })
 
     ground = {
