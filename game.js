@@ -39,6 +39,9 @@ window.onload = function(){
             camera.rotation.x -= (camera.rotation.x - camera.realRotation.x) * delta * 2
             camera.rotation.y -= (camera.rotation.y - camera.realRotation.y) * delta * 2
             camera.rotation.z -= (camera.rotation.z - camera.realRotation.z) * delta * 2
+            camera.position.x -= (camera.position.x - player.mesh.position.x) * delta * 2
+            camera.position.y -= (camera.position.y - player.mesh.position.y - 4.6) * delta * 0.2
+            camera.position.z -= (camera.position.z - player.mesh.position.z - 20) * delta * 2
         }
         Howler.pos(camera.position.x,camera.position.y,camera.position.z)
         Howler.orientation(
@@ -108,7 +111,7 @@ window.onload = function(){
     CUBE = function(size, mass, position){
         size == undefined && (size = 1)
         mass == undefined && (mass = 1)
-        position == undefined ? position = {x:0,y:10,z:0} : 0
+        position == undefined && (position = {x:0,y:10,z:0})
         this.body = new CANNON.Body({
             mass:mass,
             shape:new CANNON.Box(new CANNON.Vec3(size/2,size/2,size/2)),
@@ -161,7 +164,11 @@ window.onload = function(){
     }
     document.getElementById("makeCube").onclick = function(){
         var temp = Math.random()*0.4+0.8
-        new CUBE(temp,temp)
+        new CUBE(temp,temp,{
+            x:player.mesh.position.x,
+            y:player.mesh.position.y+15,
+            z:player.mesh.position.z
+        })
         document.getElementById("refresh").disabled = false
         spawnSound.play()
     }
@@ -211,14 +218,18 @@ window.onload = function(){
     player.speed = 8
     player.mSpeed = 10
     player.jSpeed = 8
+    player.canChange = 0
     player.changeColor = function(){
-        new TWEEN.Tween(player.mesh.material.color)
-            .to({r:Math.random(),g:Math.random(),b:Math.random()},300)
-            .easing(TWEEN.Easing.Circular.InOut)
-            .start()
-        new COLORCHANGECUBE(player.mesh)
-        changeSound.pos(player.mesh.position.x,player.mesh.position.y,player.mesh.position.z)
-        changeSound.play()
+        if (player.canChange <=0){
+            new TWEEN.Tween(player.mesh.material.color)
+                .to({r:Math.random(),g:Math.random(),b:Math.random()},300)
+                .easing(TWEEN.Easing.Circular.InOut)
+                .start()
+            new COLORCHANGECUBE(player.mesh)
+            changeSound.pos(player.mesh.position.x,player.mesh.position.y,player.mesh.position.z)
+            changeSound.play()
+            player.canChange = 1.01
+        }
     }
     player.jump = function(){
         if (player.jumping == 0){
@@ -249,6 +260,7 @@ window.onload = function(){
     }
     document.getElementById("changeColor").onclick = function(){player.changeColor()}
     player.update = function(){
+        player.canChange>0&&(player.canChange-=delta)
         if (player.touch.active){
             var t0 = player.touch.x2 - player.touch.x
             var t1 = player.touch.y2 - player.touch.y
@@ -293,7 +305,11 @@ window.onload = function(){
         switch(e){
             case 49:
                 var temp = Math.random()*0.5+0.5
-                new CUBE(temp,temp)
+                new CUBE(temp,temp,{
+                    x:player.mesh.position.x,
+                    y:player.mesh.position.y+15,
+                    z:player.mesh.position.z
+                })
                 document.getElementById("refresh").disabled = false
                 spawnSound.play()
                 break
@@ -442,8 +458,8 @@ bumper = {
             if(currentBumps.indexOf(temp)<0){
                 currentBumps.push(temp)
             }
-            if(Object.keys(this.bumps).indexOf(temp)<0 || this.bumps[temp]<0.2){
-                this.bumps[temp]=0.262
+            if(Object.keys(this.bumps).indexOf(temp)<0 || this.bumps[temp]<0){
+                this.bumps[temp]=0.062
                 bumpSound.pos(
                     world.contacts[i].bj.position.x,
                     world.contacts[i].bj.position.y,
