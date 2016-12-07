@@ -91,8 +91,17 @@ window.onload = function(){
             new THREE.MeshLambertMaterial({color:color}))
         this.mesh.position.set(
             position.x,
-            position.y,
+            position.y-5,
             position.z)
+        this.mesh.scale.set(0.1,0.1,1)
+        new TWEEN.Tween(this.mesh.scale)
+            .to({x:1,y:1},500)
+            .easing(TWEEN.Easing.Circular.Out)
+            .start()
+        new TWEEN.Tween(this.mesh.position)
+            .to({y:"+5"},500)
+            .easing(TWEEN.Easing.Circular.Out)
+            .start()
         this.mesh.rotation.x=Math.PI*-0.5
         scene.add(this.mesh)
     }
@@ -109,10 +118,22 @@ window.onload = function(){
         update:function(){
             var x = Math.round((player.mesh.position.x+(Math.sign(player.mesh.position.x*5)))/10)*10
             var z = Math.round((player.mesh.position.z+(Math.sign(player.mesh.position.z*5)))/10)*10
-            var playerTile = x+','+z
+            //var playerTile = x+','+z
+            var playerTiles = [
+                [x+','+z,[x,z]],
+                [(x+10)+','+z,[x+10,z]],
+                [(x-10)+','+z,[x-10,z]],
+                [x+','+(z+10),[x,z+10]],
+                [x+','+(z-10),[x,z-10]]]
+            playerTiles.map(function(a){
+                if(grounds.tiles[a[0]]==undefined){
+                    grounds.createTile(a[0],{x:a[1][0],y:-5,z:a[1][1]})
+                }
+            })
+            /*
             if(this.tiles[playerTile] == undefined){
                 this.createTile(playerTile,{x:x,y:-5,z:z})
-            }
+            }*/
         }
     }
     grounds.body.position.y = -5
