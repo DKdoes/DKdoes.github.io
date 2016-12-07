@@ -85,7 +85,7 @@ window.onload = function(){
     ground = function(tile,position,color){
         position == undefined && (position={x:0,y:-5,z:0})
         this.tile = tile
-        color == undefined && (color=new THREE.Color(Math.random()*0.2+0.75,Math.random()*0.2+0.75,Math.random()*0.2+0.75))
+        color == undefined && (color=new THREE.Color(Math.random()*0.1+0.75,Math.random()*0.2+0.75,Math.random()*0.2+0.75))
         this.mesh = new THREE.Mesh(
             tileGeo,
             new THREE.MeshLambertMaterial({color:color}))
@@ -93,7 +93,7 @@ window.onload = function(){
             position.x,
             position.y-5,
             position.z)
-        this.mesh.scale.set(0.1,0.1,1)
+        this.mesh.scale.set(0.01,0.01,1)
         new TWEEN.Tween(this.mesh.scale)
             .to({x:1,y:1},500)
             .easing(TWEEN.Easing.Circular.Out)
@@ -104,6 +104,21 @@ window.onload = function(){
             .start()
         this.mesh.rotation.x=Math.PI*-0.5
         scene.add(this.mesh)
+        this.kill = function(){
+            temp = this.mesh
+            temp2 = this.tile
+            new TWEEN.Tween(this.mesh.scale)
+                .to({x:0.01,y:0.01},500)
+                .easing(TWEEN.Easing.Circular.In)
+                .start()
+            new TWEEN.Tween(this.mesh.position)
+                .to({y:"-5"},500)
+                .easing(TWEEN.Easing.Circular.In)
+                .onComplete(function(){
+                    delete grounds.tiles[temp2]
+                    })
+                .start()
+        }
     }
     grounds = {
         body:new CANNON.Body({
@@ -118,22 +133,30 @@ window.onload = function(){
         update:function(){
             var x = Math.round((player.mesh.position.x+(Math.sign(player.mesh.position.x*5)))/10)*10
             var z = Math.round((player.mesh.position.z+(Math.sign(player.mesh.position.z*5)))/10)*10
-            //var playerTile = x+','+z
-            var playerTiles = [
-                [x+','+z,[x,z]],
-                [(x+10)+','+z,[x+10,z]],
-                [(x-10)+','+z,[x-10,z]],
-                [x+','+(z+10),[x,z+10]],
-                [x+','+(z-10),[x,z-10]]]
-            playerTiles.map(function(a){
-                if(grounds.tiles[a[0]]==undefined){
-                    grounds.createTile(a[0],{x:a[1][0],y:-5,z:a[1][1]})
+            
+            var playerTiles = {}
+            playerTiles[x+','+z]=[x,z]
+            playerTiles[(x+10)+','+z]=[x+10,z]
+            playerTiles[(x-10)+','+z]=[x-10,z]
+            playerTiles[x+','+(z+10)]=[x,z+10]
+            playerTiles[x+','+(z-10)]=[x,z-10]
+            
+            playerTiles[(x+10)+','+(z+10)]=[x+10,z+10]
+            playerTiles[(x-10)+','+(z-10)]=[x-10,z-10]
+            playerTiles[(x-10)+','+(z+10)]=[x-10,z+10]
+            playerTiles[(x+10)+','+(z-10)]=[x+10,z-10]
+            
+
+            Object.keys(playerTiles).map(function(k){
+                if(grounds.tiles[k]==undefined){
+                    grounds.createTile(k,{x:playerTiles[k][0],y:-5,z:playerTiles[k][1]})
                 }
             })
-            /*
-            if(this.tiles[playerTile] == undefined){
-                this.createTile(playerTile,{x:x,y:-5,z:z})
-            }*/
+            Object.keys(grounds.tiles).map(function(k){
+                if(playerTiles[k]==undefined){
+                    grounds.tiles[k].kill()
+                }
+            })
         }
     }
     grounds.body.position.y = -5
