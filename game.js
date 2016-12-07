@@ -79,26 +79,47 @@ window.onload = function(){
     spawnSound = new Howl({
         src: ['spawn.mp3']
     })
-
-    ground = {
-        mesh:new THREE.Mesh(
-            new THREE.PlaneBufferGeometry(10,10),
-            new THREE.MeshLambertMaterial({color:0xffdddd})
-        ),
+    
+    tileGeo = new THREE.PlaneBufferGeometry(10,10)
+    
+    ground = function(tile,position,color){
+        position == undefined && (position={x:0,y:-5,z:0})
+        this.tile = tile
+        color == undefined && (color=new THREE.Color(Math.random()*0.2+0.75,Math.random()*0.2+0.75,Math.random()*0.2+0.75))
+        this.mesh = new THREE.Mesh(
+            tileGeo,
+            new THREE.MeshLambertMaterial({color:color}))
+        this.mesh.position.set(
+            position.x,
+            position.y,
+            position.z)
+        this.mesh.rotation.x=Math.PI*-0.5
+        scene.add(this.mesh)
+    }
+    grounds = {
         body:new CANNON.Body({
             mass:0,
             shape: new CANNON.Plane()
         }),
+        tiles:{},
+        createTile:function(tile,position,color){
+            var temp = new ground(tile,position,color)
+            this.tiles[temp.tile] = temp
+        },
         update:function(){
-            this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
-            this.mesh.position.copy(this.body.position)
+            var x = Math.round((player.mesh.position.x+(Math.sign(player.mesh.position.x*5)))/10)*10
+            var z = Math.round((player.mesh.position.z+(Math.sign(player.mesh.position.z*5)))/10)*10
+            var playerTile = x+','+z
+            if(this.tiles[playerTile] == undefined){
+                this.createTile(playerTile,{x:x,y:-5,z:z})
+            }
         }
     }
-    ground.body.position.y = -5
-    ground.body.quaternion.setFromAxisAngle(CANNON.Vec3.UNIT_X,Math.PI*-0.5)
-    world.add(ground.body)
-    scene.add(ground.mesh)
-    sceneWorld.push(ground)
+    grounds.body.position.y = -5
+    grounds.body.quaternion.setFromAxisAngle(CANNON.Vec3.UNIT_X,Math.PI*-0.5)
+    world.add(grounds.body)
+    sceneWorld.push(grounds)
+    grounds.createTile('0,0',{x:0,y:-5,z:0},0xffdddd)
 
     sunlight = new THREE.DirectionalLight(0xffffff, 1)
     sunlight.position.set(1,2,1)
