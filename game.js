@@ -94,19 +94,21 @@ window.onload = function(){
             position.y-5,
             position.z)
         this.mesh.scale.set(0.01,0.01,1)
+        var temp = 300+Math.random()*400
         new TWEEN.Tween(this.mesh.scale)
-            .to({x:1,y:1},500)
+            .to({x:1,y:1},temp)
             .easing(TWEEN.Easing.Circular.Out)
             .start()
         new TWEEN.Tween(this.mesh.position)
-            .to({y:"+5"},500)
+            .to({y:"+5"},temp)
             .easing(TWEEN.Easing.Circular.Out)
             .start()
         this.mesh.rotation.x=Math.PI*-0.5
         scene.add(this.mesh)
         this.kill = function(){
-            temp = this.mesh
-            temp2 = this.tile
+            var temp = this.mesh
+            var temp2 = this.tile
+            this.mesh.position.temp = this.mesh
             new TWEEN.Tween(this.mesh.scale)
                 .to({x:0.01,y:0.01},500)
                 .easing(TWEEN.Easing.Circular.In)
@@ -115,8 +117,8 @@ window.onload = function(){
                 .to({y:"-5"},500)
                 .easing(TWEEN.Easing.Circular.In)
                 .onComplete(function(){
-                    delete grounds.tiles[temp2]
-                    })
+                    //delete grounds.tiles[temp2]
+                    scene.remove(this.temp)})
                 .start()
         }
     }
@@ -155,6 +157,7 @@ window.onload = function(){
             Object.keys(grounds.tiles).map(function(k){
                 if(playerTiles[k]==undefined){
                     grounds.tiles[k].kill()
+                    delete grounds.tiles[k]
                 }
             })
         }
