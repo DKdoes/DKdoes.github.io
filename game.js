@@ -32,6 +32,7 @@ window.onload = function(){
     
     camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000)
     sceneWorld.push(camera)
+    camera.position.y = 5
     camera.position.z = 20
     camera.realRotation = {x:0,y:0,z:0}
     camera.update = function(){
@@ -80,19 +81,24 @@ window.onload = function(){
         src: ['spawn.mp3']
     })
     
-    tileGeo = new THREE.PlaneBufferGeometry(10,10)
+    tileGeo = new THREE.PlaneBufferGeometry(2,2)
+    tileGeo.radius = tileGeo.parameters.width * 5
+    tileGeo.radius2 = tileGeo.parameters.width * 6
+    tileGeo.radius2*=tileGeo.radius2
+    var grid = []
+    for(xx=-tileGeo.radius;xx<=tileGeo.radius;xx+=tileGeo.parameters.width){
+        for(zz=-tileGeo.radius;zz<=tileGeo.radius;zz+=tileGeo.parameters.width){
+            if(xx*xx+zz*zz<=tileGeo.radius*tileGeo.radius){
+                grid.push([xx,zz])
+            }
+        }
+    }
+    tileGeo.grid = grid
     
-    ground = function(tile,position,color){
-        position == undefined && (position={x:0,y:-5,z:0})
-        this.tile = tile
-        color == undefined && (color=new THREE.Color(Math.random()*0.1+0.75,Math.random()*0.2+0.75,Math.random()*0.2+0.75))
-        this.mesh = new THREE.Mesh(
-            tileGeo,
-            new THREE.MeshLambertMaterial({color:color}))
-        this.mesh.position.set(
-            position.x,
-            position.y-5,
-            position.z)
+    TILE = function(position){
+        this.mesh = new THREE.Mesh(tileGeo,new THREE.MeshLambertMaterial({color:new THREE.Color(Math.random()*0.1+0.75,Math.random()*0.2+0.75,Math.random()*0.2+0.75)}))
+        this.mesh.position.set(position.x,position.y,position.z)
+        this.mesh.rotation.x=Math.PI*-0.5
         this.mesh.scale.set(0.01,0.01,1)
         var temp = 300+Math.random()*400
         new TWEEN.Tween(this.mesh.scale)
@@ -100,14 +106,10 @@ window.onload = function(){
             .easing(TWEEN.Easing.Circular.Out)
             .start()
         new TWEEN.Tween(this.mesh.position)
-            .to({y:"+5"},temp)
+            .to({y:0},temp)
             .easing(TWEEN.Easing.Circular.Out)
             .start()
-        this.mesh.rotation.x=Math.PI*-0.5
-        scene.add(this.mesh)
         this.kill = function(){
-            var temp = this.mesh
-            var temp2 = this.tile
             this.mesh.position.temp = this.mesh
             new TWEEN.Tween(this.mesh.scale)
                 .to({x:0.01,y:0.01},500)
@@ -117,57 +119,46 @@ window.onload = function(){
                 .to({y:"-5"},500)
                 .easing(TWEEN.Easing.Circular.In)
                 .onComplete(function(){
-                    //delete grounds.tiles[temp2]
                     scene.remove(this.temp)})
                 .start()
         }
+        scene.add(this.mesh)
     }
-    grounds = {
+    
+    tiles = {
         body:new CANNON.Body({
             mass:0,
-            shape: new CANNON.Plane()
-        }),
+            shape: new CANNON.Plane(),
+            position: new CANNON.Vec3(0,0,0)}),
         tiles:{},
-        createTile:function(tile,position,color){
-            var temp = new ground(tile,position,color)
-            this.tiles[temp.tile] = temp
-        },
         update:function(){
-            var x = Math.round((player.mesh.position.x+(Math.sign(player.mesh.position.x*5)))/10)*10
-            var z = Math.round((player.mesh.position.z+(Math.sign(player.mesh.position.z*5)))/10)*10
-            
-            var playerTiles = {}
-            playerTiles[x+','+z]=[x,z]
-            playerTiles[(x+10)+','+z]=[x+10,z]
-            playerTiles[(x-10)+','+z]=[x-10,z]
-            playerTiles[x+','+(z+10)]=[x,z+10]
-            playerTiles[x+','+(z-10)]=[x,z-10]
-            
-            playerTiles[(x+10)+','+(z+10)]=[x+10,z+10]
-            playerTiles[(x-10)+','+(z-10)]=[x-10,z-10]
-            playerTiles[(x-10)+','+(z+10)]=[x-10,z+10]
-            playerTiles[(x+10)+','+(z-10)]=[x+10,z-10]
-            
-
-            Object.keys(playerTiles).map(function(k){
-                if(grounds.tiles[k]==undefined){
-                    grounds.createTile(k,{x:playerTiles[k][0],y:-5,z:playerTiles[k][1]})
+            var x = player.mesh.position.x-player.mesh.position.x%tileGeo.parameters.width
+            var z = player.mesh.position.z-player.mesh.position.z%tileGeo.parameters.width
+            for(i=0;i<tileGeo.grid.length;i++){
+                var place = (tileGeo.grid[i][0]+x)+','+(tileGeo.grid[i][1]+z)
+                if(this.tiles[place]==undefined){
+                    tile = new TILE({x:tileGeo.grid[i][0]+x,y:-5,z:tileGeo.grid[i][1]+z})
+                    this.tiles[place] = tile
                 }
-            })
-            Object.keys(grounds.tiles).map(function(k){
-                if(playerTiles[k]==undefined){
-                    grounds.tiles[k].kill()
-                    delete grounds.tiles[k]
+            }
+            for(i=0;i<Object.keys(this.tiles).length;i++){
+                var temp = this.tiles[Object.keys(this.tiles)[i]].mesh.position
+                var temp2 = player.mesh.position
+                var x = temp.x-temp2.x
+                var z = temp.z-temp2.z
+                if((x*x)+(z*z)>tileGeo.radius2){
+                    this.tiles[Object.keys(this.tiles)[i]].kill()
+                    delete this.tiles[Object.keys(this.tiles)[i]]
                 }
-            })
+                
+            }
+            
         }
     }
-    grounds.body.position.y = -5
-    grounds.body.quaternion.setFromAxisAngle(CANNON.Vec3.UNIT_X,Math.PI*-0.5)
-    world.add(grounds.body)
-    sceneWorld.push(grounds)
-    grounds.createTile('0,0',{x:0,y:-5,z:0},0xffdddd)
-
+    tiles.body.quaternion.setFromAxisAngle(CANNON.Vec3.UNIT_X,Math.PI*-0.5)
+    world.add(tiles.body)
+    sceneWorld.push(tiles)
+    
     sunlight = new THREE.DirectionalLight(0xffffff, 1)
     sunlight.position.set(1,2,1)
     scene.add(sunlight)
@@ -179,7 +170,7 @@ window.onload = function(){
     CUBE = function(size, mass, position){
         size == undefined && (size = 1)
         mass == undefined && (mass = 1)
-        position == undefined && (position = {x:0,y:10,z:0})
+        position == undefined && (position = {x:0,y:15,z:0})
         this.body = new CANNON.Body({
             mass:mass,
             shape:new CANNON.Box(new CANNON.Vec3(size/2,size/2,size/2)),
