@@ -542,7 +542,7 @@ render = function(){
     !pause && requestAnimationFrame(render)
     delta = clock.getDelta()
     TWEEN.update()
-    world.step(delta)
+    world.step(1/60,delta,100)
     bumper.handleBumps()
     sceneWorld.map(
         function(o){
