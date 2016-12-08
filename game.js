@@ -3,7 +3,7 @@ window.onload = function(){
     scene = new THREE.Scene()
     clock = new THREE.Clock()
     delta = clock.getDelta()
-    maxSubSteps = 1
+    maxSubSteps = 10
     world = new CANNON.World()
     world.gravity.set(0,-91,0)
     world.allowSleep=true
@@ -81,10 +81,8 @@ window.onload = function(){
         src: ['spawn.mp3']
     })
     
-    tileGeo = new THREE.PlaneBufferGeometry(2,2)
-    tileGeo.radius = tileGeo.parameters.width * 5
-    tileGeo.radius2 = tileGeo.parameters.width * 6
-    tileGeo.radius2*=tileGeo.radius2
+    tileGeo = new THREE.PlaneBufferGeometry(2.5,2.5)
+    tileGeo.radius = tileGeo.parameters.width * 4
     var grid = []
     for(xx=-tileGeo.radius;xx<=tileGeo.radius;xx+=tileGeo.parameters.width){
         for(zz=-tileGeo.radius;zz<=tileGeo.radius;zz+=tileGeo.parameters.width){
@@ -134,23 +132,22 @@ window.onload = function(){
         update:function(){
             var x = player.mesh.position.x-player.mesh.position.x%tileGeo.parameters.width
             var z = player.mesh.position.z-player.mesh.position.z%tileGeo.parameters.width
+            var grid = []
             for(i=0;i<tileGeo.grid.length;i++){
                 var place = (tileGeo.grid[i][0]+x)+','+(tileGeo.grid[i][1]+z)
+                grid.push(place)
                 if(this.tiles[place]==undefined){
                     tile = new TILE({x:tileGeo.grid[i][0]+x,y:-5,z:tileGeo.grid[i][1]+z})
                     this.tiles[place] = tile
                 }
             }
             for(i=0;i<Object.keys(this.tiles).length;i++){
-                var temp = this.tiles[Object.keys(this.tiles)[i]].mesh.position
-                var temp2 = player.mesh.position
-                var x = temp.x-temp2.x
-                var z = temp.z-temp2.z
-                if((x*x)+(z*z)>tileGeo.radius2){
-                    this.tiles[Object.keys(this.tiles)[i]].kill()
-                    delete this.tiles[Object.keys(this.tiles)[i]]
+                if(grid.indexOf(Object.keys(this.tiles)[i])<0){
+                    if(Math.random()<3*delta){
+                        this.tiles[Object.keys(this.tiles)[i]].kill()
+                        delete this.tiles[Object.keys(this.tiles)[i]]
+                    }
                 }
-                
             }
             
         }
@@ -538,11 +535,21 @@ bumper = {
     }
 }
 
+//frameTime = 0
+//lastLoop = new Date
+
 render = function(){
+    
+    /*
+    var thisFrameTime = (thisLoop=new Date)-lastLoop
+    frameTime+=(thisFrameTime-frameTime)/20
+    lastLoop=thisLoop
+    */
+    
     !pause && requestAnimationFrame(render)
     delta = clock.getDelta()
     TWEEN.update()
-    world.step(1/60, delta, maxSubSteps)
+    world.step(delta, delta, maxSubSteps)
     bumper.handleBumps()
     sceneWorld.map(
         function(o){
@@ -551,3 +558,4 @@ render = function(){
     )
     renderer.render(scene,camera)
 }
+//setInterval(function(){document.getElementById("test").innerHTML = (1000/frameTime).toFixed()},500)
