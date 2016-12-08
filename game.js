@@ -3,7 +3,7 @@ window.onload = function(){
     scene = new THREE.Scene()
     clock = new THREE.Clock()
     delta = clock.getDelta()
-    maxSubSteps = 10
+    maxSubSteps = 1
     world = new CANNON.World()
     world.gravity.set(0,-91,0)
     world.allowSleep=true
@@ -132,7 +132,7 @@ window.onload = function(){
         update:function(){
             var x = player.mesh.position.x-player.mesh.position.x%tileGeo.parameters.width
             var z = player.mesh.position.z-player.mesh.position.z%tileGeo.parameters.width
-            var grid = []
+            grid = []
             for(i=0;i<tileGeo.grid.length;i++){
                 var place = (tileGeo.grid[i][0]+x)+','+(tileGeo.grid[i][1]+z)
                 grid.push(place)
@@ -143,7 +143,7 @@ window.onload = function(){
             }
             for(i=0;i<Object.keys(this.tiles).length;i++){
                 if(grid.indexOf(Object.keys(this.tiles)[i])<0){
-                    if(Math.random()<3*delta){
+                    if(Math.random()<0.7*delta){
                         this.tiles[Object.keys(this.tiles)[i]].kill()
                         delete this.tiles[Object.keys(this.tiles)[i]]
                     }
@@ -167,7 +167,7 @@ window.onload = function(){
     CUBE = function(size, mass, position){
         size == undefined && (size = 1)
         mass == undefined && (mass = 1)
-        position == undefined && (position = {x:0,y:15,z:0})
+        position == undefined && (position = {x:0,y:10,z:0})
         this.body = new CANNON.Body({
             mass:mass,
             shape:new CANNON.Box(new CANNON.Vec3(size/2,size/2,size/2)),
@@ -535,21 +535,14 @@ bumper = {
     }
 }
 
-//frameTime = 0
-//lastLoop = new Date
+
 
 render = function(){
-    
-    /*
-    var thisFrameTime = (thisLoop=new Date)-lastLoop
-    frameTime+=(thisFrameTime-frameTime)/20
-    lastLoop=thisLoop
-    */
     
     !pause && requestAnimationFrame(render)
     delta = clock.getDelta()
     TWEEN.update()
-    world.step(delta, delta, maxSubSteps)
+    world.step(delta)
     bumper.handleBumps()
     sceneWorld.map(
         function(o){
@@ -558,4 +551,3 @@ render = function(){
     )
     renderer.render(scene,camera)
 }
-//setInterval(function(){document.getElementById("test").innerHTML = (1000/frameTime).toFixed()},500)
