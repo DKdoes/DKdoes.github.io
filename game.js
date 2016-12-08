@@ -26,7 +26,7 @@ window.onload = function(){
     window.addEventListener('focus',function(){
         animate = true
         clock.getDelta()
-        clock.getDelta()
+        delta = clock.getDelta()
         render()
     })
     
@@ -542,7 +542,7 @@ render = function(){
     !pause && requestAnimationFrame(render)
     delta = clock.getDelta()
     TWEEN.update()
-    world.step(1/60,delta,100)
+    world.step(1/60,delta,10)
     bumper.handleBumps()
     sceneWorld.map(
         function(o){
