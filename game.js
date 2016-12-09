@@ -303,27 +303,47 @@ window.onload = function(){
         }
     }
     document.getElementById("changeColor").onclick = function(){player.changeColor()}
+    attackMaterial = new CANNON.Material("attackMaterial")
+    groundMaterial = new CANNON.Material("groundMaterial")
+    attack_ground_cm = new CANNON.ContactMaterial(attackMaterial,groundMaterial,{friction:0})
+    world.addContactMaterial(attack_ground_cm)
+    tiles.body.material = groundMaterial
+    player.strength = 200
+    player.canMove = true
+    player.attack = function(target){
+        player.canMove = false
+        player.body.material = attackMaterial
+        var temp = target.body.position.vsub(player.body.position)
+        temp.normalize()
+        player.body.applyImpulse(temp.mult(player.strength),player.body.position)
+        setTimeout(function(){
+            player.body.material = world.defaultMaterial
+            player.canMove = true},444)
+    }
+    
     player.update = function(){
         player.canChange>0&&(player.canChange-=delta)
-        if (player.touch.active){
-            var t0 = player.touch.x2 - player.touch.x
-            var t1 = player.touch.y2 - player.touch.y
-            var t2 = Math.hypot(t0, t1) || 1e-15
-            player.body.velocity.x= player.speed * (t0/t2)
-            player.body.velocity.z= player.speed * (t1/t2)
-        }
-        else{
-            if (player.right == 1){
-                player.body.velocity.x=player.speed*(player.up==1||player.down==1?0.707:1)
+        if (player.canMove){
+            if (player.touch.active){
+                var t0 = player.touch.x2 - player.touch.x
+                var t1 = player.touch.y2 - player.touch.y
+                var t2 = Math.hypot(t0, t1) || 1e-15
+                player.body.velocity.x= player.speed * (t0/t2)
+                player.body.velocity.z= player.speed * (t1/t2)
             }
-            else if (player.left == 1){
-                player.body.velocity.x=-player.speed*(player.up==1||player.down==1?0.707:1)
-            }
-            if (player.up == 1){
-                player.body.velocity.z=-player.speed*(player.left==1||player.right==1?0.707:1)
-            }
-            else if (player.down == 1){
-                player.body.velocity.z=player.speed*(player.left==1||player.right==1?0.707:1)
+            else{
+                if (player.right == 1){
+                    player.body.velocity.x=player.speed*(player.up==1||player.down==1?0.707:1)
+                }
+                else if (player.left == 1){
+                    player.body.velocity.x=-player.speed*(player.up==1||player.down==1?0.707:1)
+                }
+                if (player.up == 1){
+                    player.body.velocity.z=-player.speed*(player.left==1||player.right==1?0.707:1)
+                }
+                else if (player.down == 1){
+                    player.body.velocity.z=player.speed*(player.left==1||player.right==1?0.707:1)
+                }
             }
         }
         if (player.jumping > 1){
@@ -428,9 +448,12 @@ window.onload = function(){
         mouse.y = - (e.clientY / window.innerHeight * 2 - 1)
         raycaster.setFromCamera(mouse, camera)
         intersects = raycaster.intersectObjects(scene.children)
-        if(intersects.length>0){
+        for(i=0;i<intersects.length;i++){
             try{
-                intersects[0].object.parentRef.bounce()
+                if(intersects[i].object.parentRef.name == "cube"){
+                    player.attack(intersects[i].object.parentRef)
+                    break
+                }
             }catch(err){}
         }
     })
@@ -454,9 +477,12 @@ window.onload = function(){
             mouse.y = - (e.changedTouches[i].clientY / window.innerHeight * 2 - 1)
             raycaster.setFromCamera(mouse, camera)
             intersects = raycaster.intersectObjects(scene.children)
-            if(intersects.length>0){
+            for(i=0;i<intersects.length;i++){
                 try{
-                    intersects[0].object.parentRef.bounce()
+                    if(intersects[i].object.parentRef.name == "cube"){
+                        player.attack(intersects[i].object.parentRef)
+                        break
+                    }
                 }catch(err){}
             }
         }
