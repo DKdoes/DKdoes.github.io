@@ -37,12 +37,22 @@ window.onload = function(){
     camera.realRotation = {x:0,y:0,z:0}
     camera.update = function(){
         if (animate){
-            camera.rotation.x -= (camera.rotation.x - camera.realRotation.x) * delta * 2
-            camera.rotation.y -= (camera.rotation.y - camera.realRotation.y) * delta * 2
-            camera.rotation.z -= (camera.rotation.z - camera.realRotation.z) * delta * 2
-            camera.position.x -= (camera.position.x - player.mesh.position.x) * delta * 2
-            camera.position.y -= (camera.position.y - player.mesh.position.y - 4.6) * delta * 0.2
-            camera.position.z -= (camera.position.z - player.mesh.position.z - 20) * delta * 2
+            if(delta<2){
+                camera.rotation.x -= (camera.rotation.x - camera.realRotation.x) * delta * 2
+                camera.rotation.y -= (camera.rotation.y - camera.realRotation.y) * delta * 2
+                camera.rotation.z -= (camera.rotation.z - camera.realRotation.z) * delta * 2
+                camera.position.x -= (camera.position.x - player.mesh.position.x) * delta * 2
+                camera.position.y -= (camera.position.y - player.mesh.position.y - 4.6) * delta * 0.2
+                camera.position.z -= (camera.position.z - player.mesh.position.z - 20) * delta * 2
+            }
+            else{
+                camera.rotation.x = camera.realRotation.x
+                camera.rotation.y = camera.realRotation.y
+                camera.rotation.z = camera.realRotation.z
+                camera.position.x = player.mesh.position.x
+                camera.position.y = camera.position.y - player.mesh.position.y - 4.6
+                camera.position.z = camera.position.z - player.mesh.position.z - 20
+            }
         }
         Howler.pos(camera.position.x,camera.position.y,camera.position.z)
         Howler.orientation(
@@ -262,21 +272,23 @@ window.onload = function(){
     document.getElementById("refresh").disabled = true
     
     refresh = function(){
-        var temp = []
-        for(i=0;i<sceneWorld.length;i++){
-            if(sceneWorld[i].name=="cube"){
-                world.remove(sceneWorld[i].body)
-                scene.remove(sceneWorld[i].mesh)
-                scene.remove(sceneWorld[i].hitbox)
+        if(document.getElementById("refresh").disabled == false){
+            var temp = []
+            for(i=0;i<sceneWorld.length;i++){
+                if(sceneWorld[i].name=="cube"){
+                    world.remove(sceneWorld[i].body)
+                    scene.remove(sceneWorld[i].mesh)
+                    scene.remove(sceneWorld[i].hitbox)
+                }
+                else{
+                    temp.push(sceneWorld[i])
+                }
             }
-            else{
-                temp.push(sceneWorld[i])
-            }
+            destroySound.play()
+            document.getElementById("refresh").disabled = true
+            document.getElementById("refresh").blur()
+            sceneWorld = temp
         }
-        destroySound.play()
-        document.getElementById("refresh").disabled = true
-        document.getElementById("refresh").blur()
-        sceneWorld = temp
     }
     document.getElementById("refresh").onclick = refresh
     
