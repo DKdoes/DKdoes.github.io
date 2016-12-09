@@ -220,8 +220,9 @@ window.onload = function(){
                 this.mesh.position.z)
             hurtSound.play()
         }
-        this.killed = false
+        this.killed = 0
         this.kill = function(){
+            this.killed = 1
             var temp = this
             new TWEEN.Tween(this.mesh.scale)
                 .to({x:0.01,y:0.01,z:0.01},2000)
@@ -229,7 +230,8 @@ window.onload = function(){
                     scene.remove(temp.mesh)
                     scene.remove(temp.hitbox)
                     world.remove(temp.body)
-                    temp.killed = true})
+                    cubes--
+                    temp.killed = 2})
                 .start()
         }
         this.update = function(){
@@ -239,7 +241,7 @@ window.onload = function(){
                     this.body.material = groundMaterial
                 }
             }
-            if(this.body.position.distanceSquared(player.body.position)>10000){
+            if(this.killed == 0 && this.body.position.distanceSquared(player.body.position)>10000){
                 this.kill()
             }
             this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
@@ -269,6 +271,17 @@ window.onload = function(){
         scene.add(this.mesh)
         scene.add(this.hitbox)
     }
+    cubes = 0
+    makeCube = function(){
+        var temp = Math.random()*0.4+0.8
+        var temp2 = new CUBE(temp,temp,{
+            x:player.mesh.position.x+(Math.random()*20-10),
+            y:player.mesh.position.y+15,
+            z:player.mesh.position.z+(Math.random()*20-10)
+        })
+        spawnSound.play()
+        ++cubes
+    }
     COLORCHANGECUBE = function(mesh){
         var temp = mesh.clone()
         var temp2 = mesh.material.clone()
@@ -285,6 +298,7 @@ window.onload = function(){
             .start()
         scene.add(temp)
     }
+    /*
     document.getElementById("makeCube").onclick = function(){
         var temp = Math.random()*0.4+0.8
         new CUBE(temp,temp,{
@@ -317,7 +331,7 @@ window.onload = function(){
         }
     }
     document.getElementById("refresh").onclick = refresh
-    
+    */
     player = new CUBE(1,4)
     scene.remove(player.hitbox)
     player.mesh.material.color.set(14069242)
@@ -455,6 +469,7 @@ window.onload = function(){
         e = e || window.event
         e = e.which || e.keyCode
         switch(e){
+            /*
             case 49:
                 var temp = Math.random()*0.5+0.5
                 new CUBE(temp,temp,{
@@ -465,12 +480,15 @@ window.onload = function(){
                 document.getElementById("refresh").disabled = false
                 spawnSound.play()
                 break
+            */
             case 50:
                 player.changeColor()
                 break
+            /*
             case 51:
                 refresh()
                 break
+            */
             case 65:
                 player.left = 1
                 player.right == 1 && player.right++
@@ -662,11 +680,12 @@ bumper = {
 
 
 render = function(){
-    
     !pause && requestAnimationFrame(render)
     delta = clock.getDelta()
     TWEEN.update()
     world.step(1/60,delta,10)
+    cubes<1 && makeCube()
+    cubes<10 && Math.random()<delta*0.33 && makeCube()
     bumper.handleBumps()
     sceneWorld.map(
         function(o){
@@ -675,7 +694,7 @@ render = function(){
     )
     var temp = []
     for(i=0;i<sceneWorld.length;i++){
-        sceneWorld[i].killed != true && temp.push(sceneWorld[i])
+        sceneWorld[i].killed != 2 && temp.push(sceneWorld[i])
     }
     sceneWorld = temp
     renderer.render(scene,camera)
