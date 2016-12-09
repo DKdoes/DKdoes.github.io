@@ -90,6 +90,12 @@ window.onload = function(){
     spawnSound = new Howl({
         src: ['spawn.mp3']
     })
+    hurtSound = new Howl({
+        src: ['hurt.mp3']
+    })
+    attackSound = new Howl({
+        src: ['attack.mp3']
+    })
     
     tileGeo = new THREE.PlaneBufferGeometry(2.5,2.5)
     tileGeo.radius = tileGeo.parameters.width * 4
@@ -208,6 +214,11 @@ window.onload = function(){
             this.hurtTimer = 0.222
             this.body.material = attackMaterial
             this.body.velocity.y+=15
+            hurtSound.pos(
+                this.mesh.position.x,
+                this.mesh.position.y,
+                this.mesh.position.z)
+            hurtSound.play()
         }
         this.update = function(){
             if(this.isHurt){
@@ -362,6 +373,11 @@ window.onload = function(){
         player.body.material = attackMaterial
         var temp = target.body.position.vsub(player.body.position)
         temp.normalize()
+        attackSound.pos(
+            player.mesh.position.x,
+            player.mesh.position.y,
+            player.mesh.position.z)
+        attackSound.play()
         player.body.velocity = temp.mult(player.strength)
         setTimeout(function(){
             player.body.material = world.defaultMaterial
