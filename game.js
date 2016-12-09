@@ -197,7 +197,7 @@ window.onload = function(){
             this.isHurt = true
             this.hurtTimer = 0.222
             this.body.material = attackMaterial
-            this.body.velocity.y+=10
+            this.body.velocity.y+=15
         }
         this.update = function(){
             if(this.isHurt){
@@ -353,8 +353,9 @@ window.onload = function(){
         player.body.velocity = temp.mult(player.strength)
         setTimeout(function(){
             player.body.material = world.defaultMaterial
-            player.canMove = true
-            player.attacking = false},444)
+            player.canMove = true},444)
+        setTimeout(function(){
+            player.attacking = false},222)
     }
     
     player.update = function(){
@@ -487,21 +488,24 @@ window.onload = function(){
         camera.realRotation.x = mouse.y * 0.13
         camera.realRotation.y = mouse.x * -0.26
     })
+    /*
     renderer.domElement.addEventListener('mousedown',function(e){
-        mouse.x = (e.clientX / window.innerWidth * 2 - 1)
-        mouse.y = - (e.clientY / window.innerHeight * 2 - 1)
-        raycaster.setFromCamera(mouse, camera)
-        intersects = raycaster.intersectObjects(scene.children)
-        for(i=0;i<intersects.length;i++){
-            try{
-                if(intersects[i].object.name == "mouse_hitbox"){
-                    player.attack(intersects[i].object.parentRef)
-                    break
-                }
-            }catch(err){}
+        if(!player.attacking){
+            mouse.x = (e.clientX / window.innerWidth * 2 - 1)
+            mouse.y = - (e.clientY / window.innerHeight * 2 - 1)
+            raycaster.setFromCamera(mouse, camera)
+            intersects = raycaster.intersectObjects(scene.children)
+            for(i=0;i<intersects.length;i++){
+                try{
+                    if(intersects[i].object.name == "mouse_hitbox"){
+                        player.attack(intersects[i].object.parentRef)
+                        break
+                    }
+                }catch(err){}
+            }
         }
     })
-    
+    */
     
     $(function(){FastClick.attach(document.body)})
     
@@ -516,20 +520,23 @@ window.onload = function(){
         else if (e.touches.length == 2){
             player.jump()
         }
-        for(i=0;i<e.changedTouches.length;i++){
-            mouse.x = (e.changedTouches[i].clientX / window.innerWidth * 2 - 1)
-            mouse.y = - (e.changedTouches[i].clientY / window.innerHeight * 2 - 1)
-            raycaster.setFromCamera(mouse, camera)
-            intersects = raycaster.intersectObjects(scene.children)
-            for(i=0;i<intersects.length;i++){
-                try{
-                    if(intersects[i].object.name == "touch_hitbox"){
-                        player.attack(intersects[i].object.parentRef)
-                        break
-                    }
-                }catch(err){}
+        /*
+        if (!player.attacking){
+            for(i=0;i<e.changedTouches.length;i++){
+                mouse.x = (e.changedTouches[i].clientX / window.innerWidth * 2 - 1)
+                mouse.y = - (e.changedTouches[i].clientY / window.innerHeight * 2 - 1)
+                raycaster.setFromCamera(mouse, camera)
+                intersects = raycaster.intersectObjects(scene.children)
+                for(i=0;i<intersects.length;i++){
+                    try{
+                        if(intersects[i].object.name == "touch_hitbox"){
+                            player.attack(intersects[i].object.parentRef)
+                            break
+                        }
+                    }catch(err){}
+                }
             }
-        }
+        }*/
     })
     renderer.domElement.addEventListener('touchmove',function(e){
         e.preventDefault()
@@ -541,6 +548,22 @@ window.onload = function(){
             player.touch.active = false
         }
         scrollTo(0,0)
+    })
+    renderer.domElement.addEventListener('click',function(e){
+        if (!player.attacking){
+            mouse.x = (e.clientX / window.innerWidth * 2 - 1)
+            mouse.y = - (e.clientY / window.innerHeight * 2 - 1)
+            raycaster.setFromCamera(mouse, camera)
+            intersects = raycaster.intersectObjects(scene.children)
+            for(i=0;i<intersects.length;i++){
+                try{
+                    if(intersects[i].object.name == "touch_hitbox"){
+                        player.attack(intersects[i].object.parentRef)
+                        break
+                    }
+                }catch(err){}
+            }
+        }
     })
     window.addEventListener("devicemotion",function(e){
         e=e.accelerationIncludingGravity
