@@ -163,7 +163,8 @@ window.onload = function(){
     ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
     scene.add(ambientLight)
     
-    
+    hitboxMaterial = new THREE.MeshBasicMaterial()
+    hitboxMaterial.visible = false
     CUBE = function(size, mass, position){
         size == undefined && (size = 1)
         mass == undefined && (mass = 1)
@@ -178,9 +179,23 @@ window.onload = function(){
             new THREE.BoxGeometry(size,size,size),
             new THREE.MeshLambertMaterial({color:0xffffff*Math.random()})
         )
+        this.mesh.name = "mouse_hitbox"
+        this.mesh.parentRef = this
+        this.name = "cube"
+        this.hitbox = new THREE.Mesh(
+            new THREE.BoxGeometry(size,size,size),
+            hitboxMaterial
+        )
+        this.hitbox.name = "touch_hitbox"
+        this.hitbox.parentRef = this
         this.update = function(){
             this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
             this.mesh.position.copy(this.body.position)
+            this.hitbox.quaternion.copy(this.mesh.quaternion)
+            this.hitbox.position.copy(this.mesh.position)
+            var temp = this.hitbox.position.distanceTo(camera.position)
+            temp <= 10 ? temp = 1 : temp = Math.pow(temp-10,0.5) + 1
+            this.hitbox.scale.set(temp,temp,temp)
         }
         this.bounce = function(){
             this.body.sleepState = 0
@@ -196,11 +211,10 @@ window.onload = function(){
                 this.body.position.z)
             jumpSound.play()
         }
-        this.mesh.parentRef = this
-        this.name = "cube"
         sceneWorld.push(this)
         world.add(this.body)
         scene.add(this.mesh)
+        scene.add(this.hitbox)
     }
     COLORCHANGECUBE = function(mesh){
         var temp = mesh.clone()
@@ -236,6 +250,7 @@ window.onload = function(){
             if(sceneWorld[i].name=="cube"){
                 world.remove(sceneWorld[i].body)
                 scene.remove(sceneWorld[i].mesh)
+                scene.remove(sceneWorld[i].hitbox)
             }
             else{
                 temp.push(sceneWorld[i])
@@ -249,6 +264,7 @@ window.onload = function(){
     document.getElementById("refresh").onclick = refresh
     
     player = new CUBE(1,4)
+    scene.remove(player.hitbox)
     player.mesh.material.color.set(14069242)
     player.name = "player"
     player.body.allowSleep = false
@@ -450,7 +466,7 @@ window.onload = function(){
         intersects = raycaster.intersectObjects(scene.children)
         for(i=0;i<intersects.length;i++){
             try{
-                if(intersects[i].object.parentRef.name == "cube"){
+                if(intersects[i].object.name == "mouse_hitbox"){
                     player.attack(intersects[i].object.parentRef)
                     break
                 }
@@ -479,7 +495,7 @@ window.onload = function(){
             intersects = raycaster.intersectObjects(scene.children)
             for(i=0;i<intersects.length;i++){
                 try{
-                    if(intersects[i].object.parentRef.name == "cube"){
+                    if(intersects[i].object.name == "touch_hitbox"){
                         player.attack(intersects[i].object.parentRef)
                         break
                     }
