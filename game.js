@@ -243,23 +243,11 @@ window.onload = function(){
         }
         destroySound.play()
         document.getElementById("refresh").disabled = true
+        document.getElementById("refresh").blur()
         sceneWorld = temp
     }
-    document.getElementById("refresh").onclick = function(){
-        var temp = []
-        for(i=0;i<sceneWorld.length;i++){
-            if(sceneWorld[i].name=="cube"){
-                world.remove(sceneWorld[i].body)
-                scene.remove(sceneWorld[i].mesh)
-            }
-            else{
-                temp.push(sceneWorld[i])
-            }
-        }
-        destroySound.play()
-        document.getElementById("refresh").disabled = true
-        sceneWorld = temp
-    }
+    document.getElementById("refresh").onclick = refresh
+    
     player = new CUBE(1,4)
     player.mesh.material.color.set(14069242)
     player.name = "player"
