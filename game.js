@@ -152,6 +152,8 @@ window.onload = function(){
             
         }
     }
+    tiles.body.parentRef = tiles
+    tiles.name = "ground"
     tiles.body.quaternion.setFromAxisAngle(CANNON.Vec3.UNIT_X,Math.PI*-0.5)
     world.add(tiles.body)
     sceneWorld.push(tiles)
@@ -175,6 +177,7 @@ window.onload = function(){
             position:position,
             sleepSpeedLimit:2
         })
+        this.body.parentRef = this
         this.mesh = new THREE.Mesh(
             new THREE.BoxGeometry(size,size,size),
             new THREE.MeshLambertMaterial({color:0xffffff*Math.random()})
@@ -188,7 +191,21 @@ window.onload = function(){
         )
         this.hitbox.name = "touch_hitbox"
         this.hitbox.parentRef = this
+        this.isHurt = false
+        this.hurtTimer = 0
+        this.hurt = function(){
+            this.isHurt = true
+            this.hurtTimer = 0.222
+            this.body.material = attackMaterial
+            this.body.velocity.y+=10
+        }
         this.update = function(){
+            if(this.isHurt){
+                if((this.hurtTimer-=delta)<=0){
+                    this.isHurt = false
+                    this.body.material = groundMaterial
+                }
+            }
             this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
             this.mesh.position.copy(this.body.position)
             this.hitbox.quaternion.copy(this.mesh.quaternion)
@@ -324,17 +341,20 @@ window.onload = function(){
     attack_ground_cm = new CANNON.ContactMaterial(attackMaterial,groundMaterial,{friction:0})
     world.addContactMaterial(attack_ground_cm)
     tiles.body.material = groundMaterial
-    player.strength = 200
+    player.strength = 50
     player.canMove = true
+    player.attacking = false
     player.attack = function(target){
         player.canMove = false
+        player.attacking = true
         player.body.material = attackMaterial
         var temp = target.body.position.vsub(player.body.position)
         temp.normalize()
-        player.body.applyImpulse(temp.mult(player.strength),player.body.position)
+        player.body.velocity = temp.mult(player.strength)
         setTimeout(function(){
             player.body.material = world.defaultMaterial
-            player.canMove = true},444)
+            player.canMove = true
+            player.attacking = false},444)
     }
     
     player.update = function(){
@@ -359,6 +379,14 @@ window.onload = function(){
                 }
                 else if (player.down == 1){
                     player.body.velocity.z=player.speed*(player.left==1||player.right==1?0.707:1)
+                }
+            }
+        }
+        if (player.attacking){
+            for (i=0;i<world.contacts.length;i++){
+                world.contacts[i].bi === player.body ? temp = world.contacts[i].bj : world.contacts[i].bj === player.body ? temp = world.contacts[i].bi : temp = 0
+                if(temp&&temp.parentRef.name=="cube"&&!temp.parentRef.isHurt){
+                    temp.parentRef.hurt()
                 }
             }
         }
