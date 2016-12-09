@@ -33,6 +33,23 @@
         p, div {
             font-family: 'Roboto';
         }
+        .modal {
+            text-align: center;
+            padding: 0!important;
+        }
+
+        .modal:before {
+            content: '';
+            display: inline-block;
+            height: 100%;
+            vertical-align: middle;
+            margin-right: -4px;
+        }
+        .modal-dialog {
+            display: inline-block;
+            text-align: left;
+            vertical-align: middle;
+        }
     </style>
         
     </head>
@@ -46,7 +63,41 @@
                     <div id="controls" class="collapse"><u>DESKTOP CONTROLS:</u><br>WASD to move<br>spacebar to jump<br>click on cubes<br><br><u>MOBILE CONTROLS:</u><br>drag to move<br>tap with two fingers to jump<br>tap on cubes</div>
                 <div id="test"></div>
             </div>
-            
+            <div class="modal fade intro" id="intro" role="dialog">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Welcome</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p id="introText">
+                                <script>
+                                    function webgl_support(){ 
+                                       try{
+                                        var canvas=document.createElement('canvas')
+                                        return !!window.WebGLRenderingContext&&(canvas.getContext('webgl')||canvas.getContext('experimental-webgl'))
+                                        }catch(e){return false} 
+                                     }
+                                    if(!webgl_support()){
+                                        document.getElementById("introText").innerHTML="This site requires WebGL. Any version of Chrome or Firefox from the last few years should work."
+                                    }
+                                    else if(/CriOS/.test(navigator.userAgent)){
+                                        document.getElementById("introText").innerHTML="It looks like you may be using Chrome on an iPhone/iPad, in which case you could have a few issues with the touch controls. Try Safari or Firefox."}
+                                    else{
+                                        document.getElementById("introText").innerHTML="If you find any bugs or have any suggestions for improvements, get in touch with me at:<br><ul><li><a href='https://twitter.com/dkdoes'>@dkdoes</a></li><li><a href='mailto:dk@dkdoes.com'>dk@dkdoes.com</a></li><li><a href='https://facebook.com/dkdoes'>facebook.com/dkdoes</a></li></ul>"
+                                    }
+                                    window.addEventListener("load",function(){
+                                        $('#intro').modal('show')
+                                    })
+                                </script>
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" data-dismiss="modal">Start</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
     
