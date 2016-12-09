@@ -220,12 +220,27 @@ window.onload = function(){
                 this.mesh.position.z)
             hurtSound.play()
         }
+        this.killed = false
+        this.kill = function(){
+            var temp = this
+            new TWEEN.Tween(this.mesh.scale)
+                .to({x:0.01,y:0.01,z:0.01},2000)
+                .onComplete(function(){
+                    scene.remove(temp.mesh)
+                    scene.remove(temp.hitbox)
+                    world.remove(temp.body)
+                    temp.killed = true})
+                .start()
+        }
         this.update = function(){
             if(this.isHurt){
                 if((this.hurtTimer-=delta)<=0){
                     this.isHurt = false
                     this.body.material = groundMaterial
                 }
+            }
+            if(this.body.position.distanceSquared(player.body.position)>10000){
+                this.kill()
             }
             this.mesh.quaternion.fromArray(this.body.quaternion.toArray())
             this.mesh.position.copy(this.body.position)
@@ -658,5 +673,10 @@ render = function(){
             if(o.update){o.update()}
         }
     )
+    var temp = []
+    for(i=0;i<sceneWorld.length;i++){
+        sceneWorld[i].killed != true && temp.push(sceneWorld[i])
+    }
+    sceneWorld = temp
     renderer.render(scene,camera)
 }
