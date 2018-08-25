@@ -546,7 +546,7 @@ window.onload = function(){
         e.preventDefault()
         mouse.x = (e.clientX / window.innerWidth * 2 - 1)
         mouse.y = - (e.clientY / window.innerHeight * 2 - 1)
-        camera.realRotation.x = mouse.y * 0.13
+        camera.realRotation.x = Math.min(mouse.y * 0.13 - 0.15,-0.15)
         camera.realRotation.y = mouse.x * -0.26
     })
     /*
