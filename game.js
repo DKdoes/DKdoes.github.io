@@ -629,7 +629,7 @@ window.onload = function(){
     window.addEventListener("devicemotion",function(e){
         e=e.accelerationIncludingGravity
         camera.realRotation.x = accelerometerMod * e.z * 0.03
-        if (renderer.domElement.width <= renderer.domElement.height){
+        /*if (renderer.domElement.width <= renderer.domElement.height){
             camera.realRotation.y = accelerometerMod * -e.x * 0.1
         }
         else{
@@ -639,7 +639,7 @@ window.onload = function(){
             else{
                 camera.realRotation.y = accelerometerMod * -e.y * 0.1
             }
-        }
+        }*/
     })
     render()
 }
